@@ -27,7 +27,7 @@ const server = http.createServer(async (req, res) => {
                 ok: true,
                 service: 'nexis-backend',
                 firebaseConfigured: getFirebaseConfig().enabled,
-                openaiConfigured: Boolean(process.env.OPENAI_API_KEY),
+                openaiConfigured: Boolean(process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.includes('your-api-key')),
                 timestamp: new Date().toISOString()
             });
             return;
