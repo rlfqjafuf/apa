@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexis | 검색 기록</title>
-    <meta name="description" content="Nexis AI 검색 질문과 답변 기록 페이지">
+    <meta name="description" content="Nexis AI 검색 질문과 힌트 기록 페이지">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -470,7 +470,7 @@
         <section class="hero" aria-labelledby="historyTitle">
             <div class="summary">
                 <h1 id="historyTitle">검색 기록</h1>
-                <p class="summary-copy">Nexis AI 비서에게 사용자가 무엇을 검색했는지, 그리고 어떤 답변을 받았는지 시간순으로 확인합니다. 최근 100개의 질문과 답변이 브라우저에 저장됩니다.</p>
+                <p class="summary-copy">Nexis AI 비서에게 사용자가 무엇을 검색했는지, 그리고 어떤 풀이 방법과 힌트를 받았는지 시간순으로 확인합니다. 최근 100개의 질문과 힌트가 브라우저에 저장됩니다.</p>
                 <div class="stats" aria-label="검색 기록 요약">
                     <div class="stat">
                         <div class="stat-label">전체 검색</div>
@@ -503,7 +503,7 @@
         <section class="toolbar" aria-label="검색 기록 필터">
             <label class="field">
                 <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                <input class="control" id="searchInput" type="search" placeholder="질문 또는 답변 검색">
+                <input class="control" id="searchInput" type="search" placeholder="질문 또는 힌트 검색">
             </label>
             <select class="control" id="sortSelect" aria-label="정렬">
                 <option value="newest">최신순</option>
@@ -514,7 +514,7 @@
         <section class="history-panel" aria-labelledby="listTitle">
             <div class="panel-header">
                 <div>
-                    <div class="panel-title" id="listTitle">질문과 답변</div>
+                    <div class="panel-title" id="listTitle">질문과 힌트</div>
                     <div class="panel-count" id="visibleCount">표시 중 0개</div>
                 </div>
             </div>
@@ -574,7 +574,7 @@
         function getSearchHistory() {
             return readJson('nexis_search_history', '[]').map((item, index) => ({
                 question: item.question || item.query || '검색어 없음',
-                answer: item.answer || '답변 기록 없음',
+                answer: item.answer || '힌트 기록 없음',
                 name: item.name || 'Unknown',
                 email: item.email || 'N/A',
                 timestamp: item.timestamp || new Date().toISOString(),
@@ -639,7 +639,7 @@
                 historyList.innerHTML = `
                     <div class="empty">
                         <strong>검색 기록이 없습니다</strong>
-                        <span>Nexis AI 비서에게 질문하면 이곳에 검색어와 답변이 함께 저장됩니다.</span>
+                        <span>Nexis AI 비서에게 질문하면 이곳에 검색어와 힌트가 함께 저장됩니다.</span>
                     </div>
                 `;
                 return;
@@ -652,7 +652,7 @@
                     </div>
                     <div>
                         <div class="question">Q. ${escapeHtml(item.question)}</div>
-                        <div class="answer">A. ${escapeHtml(item.answer)}</div>
+                        <div class="answer">Hint. ${escapeHtml(item.answer)}</div>
                         <div class="meta">${escapeHtml(item.name)} · ${escapeHtml(item.email)}</div>
                     </div>
                     <time class="history-time" datetime="${escapeHtml(item.timestamp)}">${formatDate(item.timestamp)}</time>

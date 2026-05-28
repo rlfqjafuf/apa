@@ -2378,10 +2378,10 @@
 
                 const data = await response.json().catch(() => ({}));
                 if (!response.ok) {
-                    throw new Error(data.error || 'GPT API 답변을 가져오지 못했습니다.');
+                    throw new Error(data.error || 'GPT API 힌트를 가져오지 못했습니다.');
                 }
 
-                return data.answer || '답변을 생성하지 못했습니다.';
+                return data.answer || '힌트를 생성하지 못했습니다.';
             }
 
             // Input submit event
