@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexis | 프리미엄 인증 & 대시보드 시스템</title>
+    <meta name="description" content="안전하고 미려한 차세대 웹 인증 및 유저 관리 대시보드 시스템">
+    
+    <!-- Google Fonts (Outfit & Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --------------------------------------------------
+         * 1. Design System & CSS Variables
+         * -------------------------------------------------- */
+        :root {
+            --bg-primary: #0a0b10;
+            --bg-secondary: #11131c;
+            --accent-purple: #8b5cf6;
+            --accent-blue: #3b82f6;
+            --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+            --accent-gradient-hover: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-bg-hover: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-border-focus: rgba(139, 92, 246, 0.4);
+            --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.2);
+            --error: #ef4444;
+            --error-glow: rgba(239, 68, 68, 0.2);
+            --warning: #f59e0b;
+            --info: #06b6d4;
+            
+            --font-outfit: 'Outfit', 'Inter', sans-serif;
+            --font-inter: 'Inter', sans-serif;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+            --transition-smooth: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --transition-fast: all 0.2s ease;
+        }
+
+        /* Reset & Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-inter);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --------------------------------------------------
+         * 2. Background Orbs & Animations
+         * -------------------------------------------------- */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 50%, #161925 0%, var(--bg-primary) 100%);
+        }
+
+        .glowing-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.4;
+            mix-blend-mode: screen;
+            animation: float 25s infinite alternate ease-in-out;
+        }
+
+        .orb-1 {
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.6) 0%, rgba(59, 130, 246, 0) 70%);
+            animation-duration: 20s;
+        }
+
+        .orb-2 {
+            bottom: -15%;
+            right: -10%;
+            width: 55vw;
+            height: 55vw;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.6) 0%, rgba(139, 92, 246, 0) 70%);
+            animation-delay: -5s;
+            animation-duration: 28s;
+        }
+
+        .orb-3 {
+            top: 40%;
+            left: 35%;
+            width: 35vw;
+            height: 35vw;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, rgba(139, 92, 246, 0) 70%);
+            animation-delay: -10s;
+            animation-duration: 22s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+            }
+            50% {
+                transform: translate(8%, 10%) scale(1.1) rotate(180deg);
+            }
+            100% {
+                transform: translate(-5%, -5%) scale(0.9) rotate(360deg);
+            }
+        }
+
+        /* --------------------------------------------------
+         * 3. Layout Containers
+         * -------------------------------------------------- */
+        .app-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        /* Glass Container Card */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--glass-shadow);
+            width: 100%;
+            max-width: 480px;
+            overflow: hidden;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent-gradient);
+            z-index: 100;
+        }
+
+        /* Sliding Flow Framework */
+        .auth-viewport {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .auth-slider {
+            display: flex;
+            width: 200%; /* Two screens wide: Login and Sign-up */
+            transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+        }
+
+        .auth-screen {
+            width: 50%;
+            padding: 48px 40px;
+            display: flex;
+            flex-direction: column;
+            opacity: 1;
+            transition: opacity 0.4s ease;
+        }
+
+        /* Show/Hide Container */
+        .auth-card-wrapper {
+            display: block;
+            width: 100%;
+            max-width: 480px;
+            transition: var(--transition-smooth);
+        }
+
+        /* --------------------------------------------------
+         * 4. UI Components & Typography
+         * -------------------------------------------------- */
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-gradient);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 800;
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .brand-name {
+            font-family: var(--font-outfit);
+            font-weight: 700;
+            font-size: 24px;
+            background: linear-gradient(120deg, #ffffff 30%, #a78bfa 90%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        h2 {
+            font-family: var(--font-outfit);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .subtitle a {
+            color: var(--accent-purple);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition-fast);
+        }
+
+        .subtitle a:hover {
+            color: var(--accent-blue);
+            text-decoration: underline;
+        }
+
+        /* --------------------------------------------------
+         * 5. Interactive Form Elements
+         * -------------------------------------------------- */
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            letter-spacing: 0.2px;
+            transition: var(--transition-fast);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            color: var(--text-muted);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-fast);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        .form-input:focus {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: var(--glass-border-focus);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+        }
+
+        .form-input:focus + .input-icon {
+            color: var(--accent-purple);
+        }
+
+        /* Password Toggle */
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            transition: var(--transition-fast);
+        }
+
+        .password-toggle:hover {
+            color: var(--text-primary);
+        }
+
+        /* Password Strength / Rules Validation */
+        .password-rules {
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.01);
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            display: none; /* Dynamic presentation */
+        }
+
+        .rule-item {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition-fast);
+        }
+
+        .rule-item.valid {
+            color: var(--success);
+        }
+
+        .rule-item.invalid {
+            color: var(--error);
+        }
+
+        .rule-icon {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* Checkbox & Options */
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            font-size: 13px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .custom-checkbox {
+            position: relative;
+            width: 18px;
+            height: 18px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 4px;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .checkbox-container input {
+            display: none;
+        }
+
+        .checkbox-container input:checked + .custom-checkbox {
+            background: var(--accent-gradient);
+            border-color: transparent;
+        }
+
+        .checkbox-container input:checked + .custom-checkbox::after {
+            content: '';
+            width: 4px;
+            height: 8px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg) translate(-0.5px, -1px);
+        }
+
+        .forgot-password {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition-fast);
+        }
+
+        .forgot-password:hover {
+            color: var(--accent-purple);
+            text-decoration: underline;
+        }
+
+        /* Buttons */
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.2);
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-submit::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(139, 92, 246, 0.35);
+            background: var(--accent-gradient-hover);
+        }
+
+        .btn-submit:hover::after {
+            left: 100%;
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Social Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 28px 0;
+            color: var(--text-muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--glass-border);
+        }
+
+        .divider::before { margin-right: 16px; }
+        .divider::after { margin-left: 16px; }
+
+        /* Social Login Grid */
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .btn-social {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-social:hover {
+            background: var(--glass-bg-hover);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        /* --------------------------------------------------
+         * 6. Premium User Dashboard
+         * -------------------------------------------------- */
+        .dashboard-wrapper {
+            display: none; /* Initially hidden */
+            width: 100%;
+            max-width: 900px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--glass-shadow);
+            overflow: hidden;
+            transition: var(--transition-smooth);
+            transform: scale(0.95);
+            opacity: 0;
+        }
+
+        .dashboard-wrapper.active {
+            display: block;
+            animation: zoomIn 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+        }
+
+        @keyframes zoomIn {
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Dashboard Internal Header */
+        .db-header {
+            padding: 32px 40px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .db-user-profile {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .db-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            text-transform: uppercase;
+        }
+
+        .db-user-details h3 {
+            font-family: var(--font-outfit);
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-badge {
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            color: #c084fc;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .db-user-details p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        /* Dashboard Body Layout */
+        .db-content {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1.8fr 1.2fr;
+            gap: 32px;
+        }
+
+        @media (max-width: 768px) {
+            .db-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section-title {
+            font-family: var(--font-outfit);
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Status Grid Card */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            transition: var(--transition-smooth);
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .stat-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-purple);
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .stat-value {
+            font-family: var(--font-outfit);
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+            margin-top: 4px;
+        }
+
+        /* Profile Editing Panel */
+        .profile-edit-card {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 24px;
+        }
+
+        .bio-textarea {
+            width: 100%;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            color: #fff;
+            padding: 12px;
+            font-size: 13px;
+            outline: none;
+            resize: none;
+            transition: var(--transition-smooth);
+            margin-top: 8px;
+        }
+
+        .bio-textarea:focus {
+            border-color: var(--glass-border-focus);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        }
+
+        .btn-save {
+            margin-top: 16px;
+            width: 100%;
+            padding: 12px;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: #fff;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-save:hover {
+            background: var(--accent-gradient-hover);
+            box-shadow: 0 6px 18px rgba(139, 92, 246, 0.25);
+        }
+
+        /* Activity Card panel */
+        .activity-card {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 24px;
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .activity-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+
+        .activity-indicator.green {
+            background: var(--success);
+        }
+
+        .activity-desc {
+            color: var(--text-primary);
+        }
+
+        .activity-time {
+            color: var(--text-muted);
+            font-size: 10px;
+            margin-top: 2px;
+        }
+
+        /* --------------------------------------------------
+         * 7. Elegant Toast Notification System
+         * -------------------------------------------------- */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        @media (max-width: 480px) {
+            .toast-container {
+                top: auto;
+                bottom: 24px;
+                right: 24px;
+                left: 24px;
+            }
+        }
+
+        .toast {
+            background: rgba(18, 20, 29, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            pointer-events: auto;
+            transform: translateX(120%);
+            opacity: 0;
+            animation: toastIn 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+            transition: var(--transition-smooth);
+            max-width: 360px;
+            font-size: 13px;
+        }
+
+        @keyframes toastIn {
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.toast-exit {
+            transform: scale(0.9);
+            opacity: 0;
+        }
+
+        .toast-success { border-left: 4px solid var(--success); }
+        .toast-error { border-left: 4px solid var(--error); }
+        .toast-warning { border-left: 4px solid var(--warning); }
+        .toast-info { border-left: 4px solid var(--info); }
+
+        .toast-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .toast-success .toast-icon { color: var(--success); }
+        .toast-error .toast-icon { color: var(--error); }
+        .toast-warning .toast-icon { color: var(--warning); }
+        .toast-info .toast-icon { color: var(--info); }
+
+        .toast-message {
+            flex-grow: 1;
+            font-weight: 500;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-fast);
+        }
+
+        .toast-close:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Animated Background -->
+    <div class="background-container">
+        <div class="glowing-orb orb-1"></div>
+        <div class="glowing-orb orb-2"></div>
+        <div class="glowing-orb orb-3"></div>
+    </div>
+
+    <!-- Core App Container -->
+    <div class="app-wrapper">
+
+        <!-- 1. Authentication Component (Login & Sign-Up) -->
+        <div class="auth-card-wrapper" id="authCardWrapper">
+            <div class="glass-card">
+                <div class="auth-viewport">
+                    <div class="auth-slider" id="authSlider">
+                        
+                        <!-- SCREEN A: LOGIN -->
+                        <section class="auth-screen" id="loginScreen" aria-labelledby="loginTitle">
+                            <div class="brand-header">
+                                <div class="logo-icon">N</div>
+                                <span class="brand-name">Nexis OS</span>
+                            </div>
+                            
+                            <h2 id="loginTitle">로그인</h2>
+                            <p class="subtitle">넥시스 포털에 오신 것을 환영합니다. <a href="#" id="toSignUp">새 계정 만들기</a></p>
+                            
+                            <form id="loginForm" autocomplete="on">
+                                <div class="form-group">
+                                    <label class="input-label" for="loginEmail">이메일 주소</label>
+                                    <div class="input-wrapper">
+                                        <div class="input-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12s-3-7-10-7-10 7-10 7 3 7 10 7 10-7 10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        </div>
+                                        <input type="email" id="loginEmail" class="form-input" placeholder="name@domain.com" required autocomplete="email">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="input-label" for="loginPassword">비밀번호</label>
+                                    <div class="input-wrapper">
+                                        <div class="input-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                        </div>
+                                        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+                                        <button type="button" class="password-toggle" id="loginPassToggle" aria-label="비밀번호 보이기">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-options">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="rememberMe" checked>
+                                        <span class="custom-checkbox"></span>
+                                        로그인 상태 유지
+                                    </label>
+                                    <a href="#" class="forgot-password" id="forgotPassLink">비밀번호 찾기</a>
+                                </div>
+                                
+                                <button type="submit" class="btn-submit" id="loginBtn">
+                                    <span>로그인하기</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                                </button>
+                            </form>
+                            
+                            <div class="divider">간편 로그인</div>
+                            
+                            <div class="social-grid">
+                                <button class="btn-social" type="button" aria-label="Google 로그인" onclick="handleSocialMock('Google')">
+                                    <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114-3.41 0-6.177-2.767-6.177-6.178 0-3.41 2.767-6.177 6.177-6.177 1.564 0 2.983.585 4.07 1.542l3.056-3.056C19.23 2.062 15.937 1 12.24 1 5.866 1 .7 6.166.7 12.54s5.166 11.54 11.54 11.54c6.643 0 11.026-4.664 11.026-11.233 0-.756-.068-1.332-.198-1.874H12.24Z"/></svg>
+                                </button>
+                                <button class="btn-social" type="button" aria-label="Github 로그인" onclick="handleSocialMock('Github')">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                                </button>
+                                <button class="btn-social" type="button" aria-label="Apple 로그인" onclick="handleSocialMock('Apple')">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-.96.04-2.13.64-2.82 1.45-.6.7-1.13 1.84-1 2.94 1.07.08 2.17-.52 2.83-1.33"/></svg>
+                                </button>
+                            </div>
+                        </section>
+                        
+                        <!-- SCREEN B: SIGN UP -->
+                        <section class="auth-screen" id="signUpScreen" aria-labelledby="signUpTitle">
+                            <div class="brand-header">
+                                <div class="logo-icon">N</div>
+                                <span class="brand-name">Nexis OS</span>
+                            </div>
+                            
+                            <h2 id="signUpTitle">회원가입</h2>
+                            <p class="subtitle">간단한 정보만으로 계정을 생성하세요. <a href="#" id="toLogin">로그인 화면으로</a></p>
+                            
+                            <form id="signUpForm" autocomplete="off">
+                                <div class="form-group">
+                                    <label class="input-label" for="regName">이름</label>
+                                    <div class="input-wrapper">
+                                        <div class="input-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                        </div>
+                                        <input type="text" id="regName" class="form-input" placeholder="홍길동" required autocomplete="name">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="input-label" for="regEmail">이메일 주소</label>
+                                    <div class="input-wrapper">
+                                        <div class="input-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12s-3-7-10-7-10 7-10 7 3 7 10 7 10-7 10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        </div>
+                                        <input type="email" id="regEmail" class="form-input" placeholder="name@domain.com" required autocomplete="email">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="input-label" for="regPassword">비밀번호</label>
+                                    <div class="input-wrapper">
+                                        <div class="input-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                        </div>
+                                        <input type="password" id="regPassword" class="form-input" placeholder="8자리 이상, 숫자 포함" required autocomplete="new-password">
+                                        <button type="button" class="password-toggle" id="regPassToggle" aria-label="비밀번호 보이기">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Dynamic Strength Validation UI -->
+                                    <div class="password-rules" id="passwordRules">
+                                        <div class="rule-item" id="ruleLen">
+                                            <span class="rule-icon"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg></span>
+                                            <span>최소 8자 이상</span>
+                                        </div>
+                                        <div class="rule-item" id="ruleNum">
+                                            <span class="rule-icon"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg></span>
+                                            <span>숫자 1개 이상 포함</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="input-label" for="regPasswordConfirm">비밀번호 확인</label>
+                                    <div class="input-wrapper">
+                                        <div class="input-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                        </div>
+                                        <input type="password" id="regPasswordConfirm" class="form-input" placeholder="비밀번호를 재입력하세요" required autocomplete="new-password">
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn-submit" id="signUpBtn" style="margin-top: 10px;">
+                                    <span>계정 만들기</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                                </button>
+                            </form>
+                        </section>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Interactive Premium Dashboard (Success Interface) -->
+        <main class="dashboard-wrapper" id="dashboardWrapper" aria-labelledby="dbTitle">
+            <header class="db-header">
+                <div class="db-user-profile">
+                    <div class="db-avatar" id="dbUserAvatar">U</div>
+                    <div class="db-user-details">
+                        <h3 id="dbTitle"><span id="dbUserName">사용자</span> <span class="user-badge">Standard</span></h3>
+                        <p id="dbUserEmail">user@domain.com</p>
+                    </div>
+                </div>
+                <button class="btn-logout" id="logoutBtn" aria-label="로그아웃">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span>로그아웃</span>
+                </button>
+            </header>
+            
+            <div class="db-content">
+                <!-- Left panel: Account statistics and metrics -->
+                <section aria-labelledby="statsTitle">
+                    <h4 class="section-title" id="statsTitle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+                        시큐리티 매트릭스
+                    </h4>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            </div>
+                            <div class="stat-label">보안 상태</div>
+                            <div class="stat-value" style="color: var(--success)">안전 (Safe)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            </div>
+                            <div class="stat-label">최근 세션 생성</div>
+                            <div class="stat-value" id="dbSessionTime">방금 전</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            </div>
+                            <div class="stat-label">등록 회원수</div>
+                            <div class="stat-value" id="dbTotalUsers">1명</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            </div>
+                            <div class="stat-label">가입 일자</div>
+                            <div class="stat-value" id="dbJoinDate">2026-05-28</div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Management panel -->
+                    <div class="profile-edit-card">
+                        <h5 style="font-size: 15px; font-weight: 600; margin-bottom: 12px; color: #fff;">프로필 설정</h5>
+                        <form id="profileUpdateForm">
+                            <div class="form-group" style="margin-bottom: 16px;">
+                                <label class="input-label" for="editName">이름 수정</label>
+                                <input type="text" id="editName" class="form-input" style="padding-left: 16px;" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="input-label" for="editBio">소개 (Bio)</label>
+                                <textarea id="editBio" class="bio-textarea" placeholder="자신을 자유롭게 소개해 주세요."></textarea>
+                            </div>
+                            <button type="submit" class="btn-save">정보 저장하기</button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Right panel: Activity logger -->
+                <aside aria-labelledby="activityTitle">
+                    <h4 class="section-title" id="activityTitle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        활동 로그
+                    </h4>
+                    
+                    <div class="activity-card">
+                        <div class="activity-list" id="activityList">
+                            <div class="activity-item">
+                                <span class="activity-indicator green"></span>
+                                <div>
+                                    <p class="activity-desc">로그인 시스템 활성화 완료</p>
+                                    <p class="activity-time">현재 세션</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Dynamic Toast Target Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- --------------------------------------------------
+     * 8. Fully Functional JavaScript Logic Core
+     * -------------------------------------------------- -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- Elements ---
+            const authCardWrapper = document.getElementById('authCardWrapper');
+            const authSlider = document.getElementById('authSlider');
+            const dashboardWrapper = document.getElementById('dashboardWrapper');
+            
+            // Links
+            const toSignUp = document.getElementById('toSignUp');
+            const toLogin = document.getElementById('toLogin');
+            const forgotPassLink = document.getElementById('forgotPassLink');
+            
+            // Forms
+            const loginForm = document.getElementById('loginForm');
+            const signUpForm = document.getElementById('signUpForm');
+            const profileUpdateForm = document.getElementById('profileUpdateForm');
+            
+            // Password Inputs and Toggles
+            const loginPassword = document.getElementById('loginPassword');
+            const loginPassToggle = document.getElementById('loginPassToggle');
+            const regPassword = document.getElementById('regPassword');
+            const regPasswordConfirm = document.getElementById('regPasswordConfirm');
+            const regPassToggle = document.getElementById('regPassToggle');
+            const passwordRules = document.getElementById('passwordRules');
+            
+            // Dashboard Elements
+            const dbUserName = document.getElementById('dbUserName');
+            const dbUserEmail = document.getElementById('dbUserEmail');
+            const dbUserAvatar = document.getElementById('dbUserAvatar');
+            const dbSessionTime = document.getElementById('dbSessionTime');
+            const dbTotalUsers = document.getElementById('dbTotalUsers');
+            const dbJoinDate = document.getElementById('dbJoinDate');
+            const editName = document.getElementById('editName');
+            const editBio = document.getElementById('editBio');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const activityList = document.getElementById('activityList');
+
+            // --- Custom Toast Alert Core System ---
+            function showToast(message, type = 'success') {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                
+                let iconSVG = '';
+                switch (type) {
+                    case 'success':
+                        iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+                        break;
+                    case 'error':
+                        iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+                        break;
+                    case 'warning':
+                        iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>`;
+                        break;
+                    default:
+                        iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
+                }
+                
+                toast.innerHTML = `
+                    <span class="toast-icon">${iconSVG}</span>
+                    <span class="toast-message">${message}</span>
+                    <button class="toast-close" aria-label="닫기">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                `;
+                
+                container.appendChild(toast);
+                
+                // Auto removal duration setup
+                const autoTimer = setTimeout(() => {
+                    removeToast(toast);
+                }, 4000);
+                
+                // Manual dismissal
+                toast.querySelector('.toast-close').addEventListener('click', () => {
+                    clearTimeout(autoTimer);
+                    removeToast(toast);
+                });
+            }
+            
+            function removeToast(toast) {
+                toast.classList.add('toast-exit');
+                toast.addEventListener('animationend', () => {
+                    toast.remove();
+                });
+            }
+
+            // Mock OAuth
+            window.handleSocialMock = function(provider) {
+                showToast(`${provider} 간편 로그인 연결을 수립하고 있습니다.`, 'info');
+                setTimeout(() => {
+                    showToast(`${provider} 인증 서버 통신 완료. 가상 로그인을 완료했습니다.`, 'success');
+                    
+                    const mockEmail = `oauth.${provider.toLowerCase()}@example.com`;
+                    const mockName = `${provider} 유저`;
+                    
+                    // Register user if they don't exist
+                    let users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
+                    let existingUser = users.find(u => u.email === mockEmail);
+                    
+                    if (!existingUser) {
+                        const now = new Date();
+                        existingUser = {
+                            email: mockEmail,
+                            name: mockName,
+                            password: 'OAUTH_MOCK_PASSWORD',
+                            createdAt: now.toLocaleDateString(),
+                            bio: `${provider} 계정으로 로그인한 상태입니다.`
+                        };
+                        users.push(existingUser);
+                        localStorage.setItem('nexis_users', JSON.stringify(users));
+                    }
+                    
+                    // Create Session
+                    createSession(existingUser);
+                }, 800);
+            };
+
+            // Forgot password mock
+            forgotPassLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                showToast('비밀번호 초기화 링크가 등록된 이메일로 전송되었습니다. (가상 메일)', 'info');
+            });
+
+            // --- Toggle Slider Navigation ---
+            toSignUp.addEventListener('click', (e) => {
+                e.preventDefault();
+                authSlider.style.transform = 'translateX(-50%)';
+            });
+            
+            toLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                authSlider.style.transform = 'translateX(0%)';
+            });
+
+            // --- Eye Toggles for Passwords ---
+            function setupPasswordToggle(inputEl, buttonEl) {
+                buttonEl.addEventListener('click', () => {
+                    const isPassword = inputEl.type === 'password';
+                    inputEl.type = isPassword ? 'text' : 'password';
+                    
+                    // Icon styling dynamic shift
+                    buttonEl.innerHTML = isPassword 
+                        ? `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>`
+                        : `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`;
+                });
+            }
+            setupPasswordToggle(loginPassword, loginPassToggle);
+            setupPasswordToggle(regPassword, regPassToggle);
+
+            // --- Interactive Password Strength Validation ---
+            regPassword.addEventListener('focus', () => {
+                passwordRules.style.display = 'flex';
+            });
+            
+            regPassword.addEventListener('input', () => {
+                const val = regPassword.value;
+                const lenValid = val.length >= 8;
+                const numValid = /\d/.test(val);
+                
+                updateRule('ruleLen', lenValid);
+                updateRule('ruleNum', numValid);
+            });
+            
+            function updateRule(elementId, isValid) {
+                const el = document.getElementById(elementId);
+                const icon = el.querySelector('.rule-icon');
+                
+                if (isValid) {
+                    el.className = 'rule-item valid';
+                    icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+                } else {
+                    el.className = 'rule-item invalid';
+                    icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>`;
+                }
+            }
+
+            // --- Authentication Business Logic via LocalStorage ---
+            
+            // Sign Up Form Submission
+            signUpForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const name = document.getElementById('regName').value.trim();
+                const email = document.getElementById('regEmail').value.trim();
+                const password = regPassword.value;
+                const confirmPassword = regPasswordConfirm.value;
+                
+                // Form validations
+                if (password.length < 8) {
+                    showToast('비밀번호는 최소 8자 이상이어야 합니다.', 'error');
+                    return;
+                }
+                
+                if (!/\d/.test(password)) {
+                    showToast('비밀번호는 최소 1개 이상의 숫자를 포함해야 합니다.', 'error');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    showToast('입력한 비밀번호가 일치하지 않습니다.', 'error');
+                    return;
+                }
+                
+                let users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
+                
+                // Check if user already exists
+                const userExists = users.some(u => u.email.toLowerCase() === email.toLowerCase());
+                if (userExists) {
+                    showToast('이미 등록된 이메일 주소입니다.', 'warning');
+                    return;
+                }
+                
+                // Register user
+                const now = new Date();
+                const newUser = {
+                    name,
+                    email,
+                    password, // Client-side dummy hash placeholder or simple text for mockup
+                    createdAt: now.toLocaleDateString(),
+                    bio: ''
+                };
+                
+                users.push(newUser);
+                localStorage.setItem('nexis_users', JSON.stringify(users));
+                
+                showToast('회원가입이 완료되었습니다! 로그인해 주세요.', 'success');
+                signUpForm.reset();
+                passwordRules.style.display = 'none';
+                
+                // Smooth transition to login view
+                authSlider.style.transform = 'translateX(0%)';
+            });
+            
+            // Login Form Submission
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const email = document.getElementById('loginEmail').value.trim();
+                const password = loginPassword.value;
+                
+                const users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
+                const targetUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+                
+                if (!targetUser || targetUser.password !== password) {
+                    showToast('이메일 혹은 비밀번호가 일치하지 않습니다.', 'error');
+                    return;
+                }
+                
+                showToast(`${targetUser.name}님, 환영합니다!`, 'success');
+                
+                // Handle Session
+                createSession(targetUser);
+            });
+            
+            // Session initializer
+            function createSession(user) {
+                const now = new Date();
+                const session = {
+                    email: user.email,
+                    name: user.name,
+                    loggedInAt: now.toLocaleTimeString()
+                };
+                
+                // Store in sessionStorage (or localStorage if "Remember me" is checked)
+                const useLocal = document.getElementById('rememberMe').checked;
+                const storage = useLocal ? localStorage : sessionStorage;
+                storage.setItem('nexis_session', JSON.stringify(session));
+                
+                loginForm.reset();
+                renderDashboard(user);
+            }
+
+            // Render Dashboard View
+            function renderDashboard(user) {
+                // Set text fields
+                dbUserName.textContent = user.name;
+                dbUserEmail.textContent = user.email;
+                dbUserAvatar.textContent = user.name.charAt(0);
+                dbJoinDate.textContent = user.createdAt || new Date().toLocaleDateString();
+                
+                // Sync settings input
+                editName.value = user.name;
+                editBio.value = user.bio || '';
+                
+                // Get counts
+                const users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
+                dbTotalUsers.textContent = `${users.length}명`;
+                
+                // Get Session Metadata
+                let sessionData = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
+                if (sessionData) {
+                    const sessObj = JSON.parse(sessionData);
+                    dbSessionTime.textContent = sessObj.loggedInAt;
+                }
+                
+                // Track dynamic activity
+                logActivity('보안 세션 토큰 발행 완료');
+                logActivity('메인 대시보드 콘솔 진입');
+
+                // Shift Interface panels
+                authCardWrapper.style.display = 'none';
+                dashboardWrapper.style.display = 'block';
+                // Trigger transition styles
+                setTimeout(() => {
+                    dashboardWrapper.classList.add('active');
+                }, 50);
+            }
+            
+            function logActivity(text) {
+                const now = new Date();
+                const item = document.createElement('div');
+                item.className = 'activity-item';
+                item.innerHTML = `
+                    <span class="activity-indicator"></span>
+                    <div>
+                        <p class="activity-desc">${text}</p>
+                        <p class="activity-time">${now.toLocaleTimeString()}</p>
+                    </div>
+                `;
+                // Prepends to list
+                activityList.insertBefore(item, activityList.firstChild);
+            }
+
+            // --- Profile Update Form ---
+            profileUpdateForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const updatedName = editName.value.trim();
+                const updatedBio = editBio.value.trim();
+                
+                let sessionData = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
+                if (!sessionData) return;
+                
+                const sessionObj = JSON.parse(sessionData);
+                let users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
+                
+                const idx = users.findIndex(u => u.email.toLowerCase() === sessionObj.email.toLowerCase());
+                if (idx !== -1) {
+                    users[idx].name = updatedName;
+                    users[idx].bio = updatedBio;
+                    
+                    // Update main data storage
+                    localStorage.setItem('nexis_users', JSON.stringify(users));
+                    
+                    // Update dynamic session structure
+                    sessionObj.name = updatedName;
+                    if (sessionStorage.getItem('nexis_session')) {
+                        sessionStorage.setItem('nexis_session', JSON.stringify(sessionObj));
+                    } else {
+                        localStorage.setItem('nexis_session', JSON.stringify(sessionObj));
+                    }
+                    
+                    // Re-render target parameters
+                    dbUserName.textContent = updatedName;
+                    dbUserAvatar.textContent = updatedName.charAt(0);
+                    
+                    logActivity(`프로필 정보 업데이트: ${updatedName}`);
+                    showToast('프로필 정보가 저장되었습니다.', 'success');
+                }
+            });
+
+            // --- Logout Event Process ---
+            logoutBtn.addEventListener('click', () => {
+                // Clear active session identifiers
+                sessionStorage.removeItem('nexis_session');
+                localStorage.removeItem('nexis_session');
+                
+                showToast('로그아웃되었습니다. 안전하게 세션을 종료했습니다.', 'info');
+                
+                // Reverse page presentation transitions
+                dashboardWrapper.classList.remove('active');
+                setTimeout(() => {
+                    dashboardWrapper.style.display = 'none';
+                    authCardWrapper.style.display = 'block';
+                    authSlider.style.transform = 'translateX(0%)';
+                }, 500);
+            });
+
+            // --- Persisted Session Check on Load ---
+            function checkAutoLogin() {
+                const sessionData = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
+                if (sessionData) {
+                    const sessionObj = JSON.parse(sessionData);
+                    const users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
+                    const matchedUser = users.find(u => u.email.toLowerCase() === sessionObj.email.toLowerCase());
+                    
+                    if (matchedUser) {
+                        renderDashboard(matchedUser);
+                        showToast(`${matchedUser.name}님, 자동 로그인되었습니다.`, 'success');
+                    } else {
+                        // Cleanup broken references
+                        sessionStorage.removeItem('nexis_session');
+                        localStorage.removeItem('nexis_session');
+                    }
+                }
+            }
+            
+            // Execute on startup
+            checkAutoLogin();
+        });
+    </script>
+</body>
+</html>
