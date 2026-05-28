@@ -1823,6 +1823,32 @@
                 }, 800);
             };
 
+            window.handleSocialMock = function(provider) {
+                showToast(`${provider} login is available after enabling that Firebase Auth provider.`, 'info');
+            };
+
+            forgotPassLink.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+
+                const email = document.getElementById('loginEmail').value.trim();
+                if (!email) {
+                    showToast('비밀번호 재설정 메일을 받을 이메일을 먼저 입력해 주세요.', 'info');
+                    return;
+                }
+
+                try {
+                    if (!firebaseClient) await setupFirebaseClient();
+                    await firebaseClient.sendPasswordReset(email);
+                    showToast('비밀번호 재설정 메일을 보냈습니다.', 'success');
+                } catch (error) {
+                    const message = error.code === 'auth/user-not-found'
+                        ? '가입된 계정을 찾을 수 없습니다.'
+                        : error.message || '비밀번호 재설정 메일 발송 중 오류가 발생했습니다.';
+                    showToast(message, 'error');
+                }
+            }, true);
+
             // Forgot password mock
             forgotPassLink.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -1881,6 +1907,67 @@
                     icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>`;
                 }
             }
+
+            signUpForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+
+                const name = document.getElementById('regName').value.trim();
+                const email = document.getElementById('regEmail').value.trim();
+                const password = regPassword.value;
+                const confirmPassword = regPasswordConfirm.value;
+
+                if (password.length < 8) {
+                    showToast('비밀번호는 최소 8자 이상이어야 합니다.', 'error');
+                    return;
+                }
+
+                if (!/\d/.test(password)) {
+                    showToast('비밀번호에는 숫자가 최소 1개 포함되어야 합니다.', 'error');
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    showToast('입력한 비밀번호가 일치하지 않습니다.', 'error');
+                    return;
+                }
+
+                try {
+                    if (!firebaseClient) await setupFirebaseClient();
+                    const newUser = await firebaseClient.registerUser({ name, email, password });
+                    showToast('회원가입이 완료되었습니다.', 'success');
+                    signUpForm.reset();
+                    passwordRules.style.display = 'none';
+                    createSession(newUser);
+                } catch (error) {
+                    const message = error.code === 'auth/email-already-in-use'
+                        ? '이미 등록된 이메일 주소입니다.'
+                        : error.code === 'auth/operation-not-allowed'
+                        ? 'Firebase 콘솔에서 이메일/비밀번호 로그인을 활성화해 주세요.'
+                        : error.message || '회원가입 중 오류가 발생했습니다.';
+                    showToast(message, 'error');
+                }
+            }, true);
+
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+
+                const email = document.getElementById('loginEmail').value.trim();
+                const password = loginPassword.value;
+
+                try {
+                    if (!firebaseClient) await setupFirebaseClient();
+                    const targetUser = await firebaseClient.loginUser({ email, password });
+                    showToast(`${targetUser.name}님, 환영합니다.`, 'success');
+                    createSession(targetUser);
+                } catch (error) {
+                    const message = error.code === 'auth/invalid-credential'
+                        ? '이메일 또는 비밀번호가 일치하지 않습니다.'
+                        : error.message || '로그인 중 오류가 발생했습니다.';
+                    showToast(message, 'error');
+                }
+            }, true);
 
             // --- Authentication Business Logic via LocalStorage ---
             
@@ -1964,6 +2051,7 @@
             function createSession(user) {
                 const now = new Date();
                 const session = {
+                    uid: user.uid || '',
                     email: user.email,
                     name: user.name,
                     loggedInAt: now.toLocaleTimeString()
@@ -1993,7 +2081,16 @@
                 // Get counts
                 const users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
                 dbTotalUsers.textContent = `${users.length}명`;
-                
+                if (firebaseClient && firebaseClient.isFirebaseEnabled()) {
+                    firebaseClient.getUserCount()
+                        .then(count => {
+                            dbTotalUsers.textContent = `${count}명`;
+                        })
+                        .catch(error => {
+                            console.warn('Firestore user count read failed:', error);
+                        });
+                }
+
                 // Get Session Metadata
                 let sessionTimeVal = '방금 전';
                 let sessionData = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
@@ -2035,12 +2132,35 @@
                 `;
                 // Prepends to list
                 activityList.insertBefore(item, activityList.firstChild);
+
+                if (firebaseClient && firebaseClient.isFirebaseEnabled()) {
+                    const activeSession = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
+                    const activeUser = activeSession ? JSON.parse(activeSession) : {};
+                    firebaseClient.saveAccountLog({
+                        uid: activeUser.uid || '',
+                        event: text,
+                        name: activeUser.name || dbUserName.textContent || 'Unknown',
+                        email: activeUser.email || dbUserEmail.textContent || 'N/A',
+                        timestamp: now.toISOString()
+                    }).catch(error => {
+                        console.warn('Firestore account log save failed:', error);
+                    });
+                }
             }
 
             async function setupFirebaseClient() {
                 try {
                     firebaseClient = await import('./firebase-client.js');
                     await firebaseClient.initFirebaseClient();
+                    firebaseClient.onAuthChange(async (authUser) => {
+                        if (!authUser) return;
+                        const profile = await firebaseClient.getUserProfile(authUser.uid);
+                        if (!profile) return;
+                        const sessionData = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
+                        if (!sessionData) {
+                            createSession(profile);
+                        }
+                    });
                     renderAiDependency();
                 } catch (error) {
                     console.warn('Firebase initialization skipped:', error);
@@ -2053,6 +2173,7 @@
                 const activeSession = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
                 const activeUser = activeSession ? JSON.parse(activeSession) : {};
                 const record = {
+                    uid: activeUser.uid || '',
                     question,
                     answer,
                     name: activeUser.name || 'Unknown',
@@ -2085,7 +2206,7 @@
 
                 if (firebaseClient && firebaseClient.isFirebaseEnabled()) {
                     try {
-                        const remoteHistory = await firebaseClient.getSearchRecords(email);
+                        const remoteHistory = await firebaseClient.getSearchRecords({ uid: activeUser.uid, email });
                         if (remoteHistory) return remoteHistory;
                     } catch (error) {
                         console.warn('Firestore search history read failed:', error);
@@ -2153,6 +2274,46 @@
             }
 
             // --- Profile Update Form ---
+            profileUpdateForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+
+                const updatedName = editName.value.trim();
+                const updatedBio = editBio.value.trim();
+                const sessionData = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
+                if (!sessionData) return;
+
+                const sessionObj = JSON.parse(sessionData);
+                if (!sessionObj.uid) {
+                    showToast('Firebase 계정 세션을 찾을 수 없습니다. 다시 로그인해 주세요.', 'error');
+                    return;
+                }
+
+                try {
+                    if (!firebaseClient) await setupFirebaseClient();
+                    const updatedProfile = await firebaseClient.updateUserProfile({
+                        uid: sessionObj.uid,
+                        name: updatedName,
+                        bio: updatedBio
+                    });
+
+                    sessionObj.name = updatedProfile.name;
+                    if (sessionStorage.getItem('nexis_session')) {
+                        sessionStorage.setItem('nexis_session', JSON.stringify(sessionObj));
+                    } else {
+                        localStorage.setItem('nexis_session', JSON.stringify(sessionObj));
+                    }
+
+                    dbUserName.textContent = updatedProfile.name;
+                    dbUserAvatar.textContent = updatedProfile.name.charAt(0);
+
+                    logActivity(`프로필 업데이트: ${updatedProfile.name}`);
+                    showToast('프로필 정보가 저장되었습니다.', 'success');
+                } catch (error) {
+                    showToast(error.message || '프로필 저장 중 오류가 발생했습니다.', 'error');
+                }
+            }, true);
+
             profileUpdateForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 
@@ -2191,6 +2352,31 @@
             });
 
             // --- Logout Event Process ---
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+
+                try {
+                    if (!firebaseClient) await setupFirebaseClient();
+                    await firebaseClient.logoutUser();
+                } catch (error) {
+                    console.warn('Firebase logout skipped:', error);
+                }
+
+                sessionStorage.removeItem('nexis_session');
+                localStorage.removeItem('nexis_session');
+
+                showToast('로그아웃되었습니다.', 'info');
+
+                dashboardWrapper.className = 'dashboard-wrapper';
+                dashboardWrapper.style.display = 'none';
+                aiChatWrapper.className = 'ai-chat-wrapper';
+                aiChatWrapper.style.display = 'none';
+
+                authCardWrapper.style.display = 'block';
+                authSlider.style.transform = 'translateX(0%)';
+            }, true);
+
             logoutBtn.addEventListener('click', () => {
                 // Clear active session identifiers
                 sessionStorage.removeItem('nexis_session');
@@ -2214,6 +2400,12 @@
                 const sessionData = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
                 if (sessionData) {
                     const sessionObj = JSON.parse(sessionData);
+
+                    if (sessionObj.uid) {
+                        renderDashboard(sessionObj);
+                        return;
+                    }
+
                     const users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
                     const matchedUser = users.find(u => u.email.toLowerCase() === sessionObj.email.toLowerCase());
                     

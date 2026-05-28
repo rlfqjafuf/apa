@@ -2,8 +2,35 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function ownsExistingDocument() {
+      return signedIn() && resource.data.uid == request.auth.uid;
+    }
+
+    function ownsIncomingDocument() {
+      return signedIn() && request.resource.data.uid == request.auth.uid;
+    }
+
+    match /users/{userId} {
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.uid == request.auth.uid;
+      allow read, update, delete: if signedIn() && request.auth.uid == userId;
+    }
+
     match /searchHistory/{document} {
-      allow read, write: if true;
+      allow create: if ownsIncomingDocument();
+      allow read, delete: if ownsExistingDocument();
+      allow update: if ownsExistingDocument() && ownsIncomingDocument();
+    }
+
+    match /accountLogs/{document} {
+      allow create: if ownsIncomingDocument();
+      allow read, delete: if ownsExistingDocument();
+      allow update: if false;
     }
   }
 }
