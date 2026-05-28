@@ -1886,17 +1886,6 @@
             
             function logActivity(text) {
                 const now = new Date();
-                const activeSession = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
-                const activeUser = activeSession ? JSON.parse(activeSession) : {};
-                const history = JSON.parse(localStorage.getItem('nexis_activity_history') || '[]');
-                history.unshift({
-                    text,
-                    name: activeUser.name || 'Unknown',
-                    email: activeUser.email || 'N/A',
-                    timestamp: now.toISOString()
-                });
-                localStorage.setItem('nexis_activity_history', JSON.stringify(history.slice(0, 100)));
-
                 const item = document.createElement('div');
                 item.className = 'activity-item';
                 item.innerHTML = `
@@ -1908,6 +1897,21 @@
                 `;
                 // Prepends to list
                 activityList.insertBefore(item, activityList.firstChild);
+            }
+
+            function saveSearchHistory(question, answer) {
+                const now = new Date();
+                const activeSession = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
+                const activeUser = activeSession ? JSON.parse(activeSession) : {};
+                const history = JSON.parse(localStorage.getItem('nexis_search_history') || '[]');
+                history.unshift({
+                    question,
+                    answer,
+                    name: activeUser.name || 'Unknown',
+                    email: activeUser.email || 'N/A',
+                    timestamp: now.toISOString()
+                });
+                localStorage.setItem('nexis_search_history', JSON.stringify(history.slice(0, 100)));
             }
 
             // --- Profile Update Form ---
@@ -2175,6 +2179,7 @@
                 setTimeout(() => {
                     indicator.remove();
                     const reply = generateAiResponse(text);
+                    saveSearchHistory(text, reply);
                     addAiBubble(reply, true);
                 }, 750);
             });

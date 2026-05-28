@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexis | 기록</title>
-    <meta name="description" content="Nexis 계정 활동 기록 페이지">
+    <title>Nexis | 검색 기록</title>
+    <meta name="description" content="Nexis AI 검색 질문과 답변 기록 페이지">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-primary: #0a0b10;
-            --bg-secondary: #11131c;
             --panel: rgba(255, 255, 255, 0.035);
             --panel-strong: rgba(255, 255, 255, 0.06);
             --border: rgba(255, 255, 255, 0.09);
@@ -24,7 +23,6 @@
             --accent-cyan: #06b6d4;
             --success: #10b981;
             --danger: #ef4444;
-            --warning: #f59e0b;
             --radius-lg: 20px;
             --radius-md: 14px;
             --radius-sm: 10px;
@@ -253,7 +251,7 @@
         .toolbar {
             padding: 16px;
             display: grid;
-            grid-template-columns: minmax(180px, 1fr) 170px 170px;
+            grid-template-columns: minmax(180px, 1fr) 170px;
             gap: 12px;
             margin-bottom: 22px;
         }
@@ -327,54 +325,43 @@
             display: grid;
             grid-template-columns: 44px minmax(0, 1fr) 190px;
             gap: 16px;
-            padding: 18px 24px;
+            padding: 20px 24px;
             border-bottom: 1px solid var(--border);
-            align-items: center;
+            align-items: start;
         }
 
         .history-row:last-child {
             border-bottom: 0;
         }
 
-        .type-icon {
+        .record-icon {
             width: 38px;
             height: 38px;
             border-radius: 12px;
             display: grid;
             place-items: center;
-            background: rgba(139, 92, 246, 0.16);
-            color: #c4b5fd;
-        }
-
-        .type-icon.profile {
             background: rgba(6, 182, 212, 0.14);
             color: #67e8f9;
-            border-radius: 12px;
-            border: 0;
-            box-shadow: none;
-            padding: 0;
         }
 
-        .type-icon.session {
-            background: rgba(16, 185, 129, 0.14);
-            color: #6ee7b7;
-        }
-
-        .type-icon.security {
-            background: rgba(245, 158, 11, 0.14);
-            color: #fcd34d;
-        }
-
-        .history-title {
-            font-weight: 700;
+        .question {
+            font-weight: 800;
             color: #fff;
             overflow-wrap: anywhere;
         }
 
-        .history-sub {
-            margin-top: 4px;
+        .answer {
+            margin-top: 10px;
             color: var(--text-secondary);
-            font-size: 13px;
+            font-size: 14px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .meta {
+            margin-top: 10px;
+            color: var(--text-muted);
+            font-size: 12px;
             overflow-wrap: anywhere;
         }
 
@@ -461,7 +448,7 @@
                 <div class="logo">N</div>
                 <div>
                     <div class="brand-title">Nexis</div>
-                    <div class="brand-subtitle">계정 활동 기록</div>
+                    <div class="brand-subtitle">AI 검색 기록</div>
                 </div>
             </div>
             <div class="actions">
@@ -482,15 +469,15 @@
 
         <section class="hero" aria-labelledby="historyTitle">
             <div class="summary">
-                <h1 id="historyTitle">기록 페이지</h1>
-                <p class="summary-copy">로그인, 대시보드 진입, 프로필 변경 같은 계정 활동을 한곳에서 확인합니다. 최근 100개의 활동이 브라우저에 안전하게 저장됩니다.</p>
-                <div class="stats" aria-label="기록 요약">
+                <h1 id="historyTitle">검색 기록</h1>
+                <p class="summary-copy">Nexis AI 비서에게 사용자가 무엇을 검색했는지, 그리고 어떤 답변을 받았는지 시간순으로 확인합니다. 최근 100개의 질문과 답변이 브라우저에 저장됩니다.</p>
+                <div class="stats" aria-label="검색 기록 요약">
                     <div class="stat">
-                        <div class="stat-label">전체 기록</div>
+                        <div class="stat-label">전체 검색</div>
                         <div class="stat-value" id="totalCount">0</div>
                     </div>
                     <div class="stat">
-                        <div class="stat-label">오늘 기록</div>
+                        <div class="stat-label">오늘 검색</div>
                         <div class="stat-value" id="todayCount">0</div>
                     </div>
                     <div class="stat">
@@ -513,18 +500,11 @@
             </aside>
         </section>
 
-        <section class="toolbar" aria-label="기록 필터">
+        <section class="toolbar" aria-label="검색 기록 필터">
             <label class="field">
                 <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                <input class="control" id="searchInput" type="search" placeholder="기록 검색">
+                <input class="control" id="searchInput" type="search" placeholder="질문 또는 답변 검색">
             </label>
-            <select class="control" id="typeFilter" aria-label="기록 유형">
-                <option value="all">전체 유형</option>
-                <option value="session">세션</option>
-                <option value="profile">프로필</option>
-                <option value="security">보안</option>
-                <option value="system">시스템</option>
-            </select>
             <select class="control" id="sortSelect" aria-label="정렬">
                 <option value="newest">최신순</option>
                 <option value="oldest">오래된순</option>
@@ -534,7 +514,7 @@
         <section class="history-panel" aria-labelledby="listTitle">
             <div class="panel-header">
                 <div>
-                    <div class="panel-title" id="listTitle">활동 내역</div>
+                    <div class="panel-title" id="listTitle">질문과 답변</div>
                     <div class="panel-count" id="visibleCount">표시 중 0개</div>
                 </div>
             </div>
@@ -545,7 +525,6 @@
     <script>
         const historyList = document.getElementById('historyList');
         const searchInput = document.getElementById('searchInput');
-        const typeFilter = document.getElementById('typeFilter');
         const sortSelect = document.getElementById('sortSelect');
         const visibleCount = document.getElementById('visibleCount');
         const totalCount = document.getElementById('totalCount');
@@ -553,13 +532,6 @@
         const userCount = document.getElementById('userCount');
         const exportBtn = document.getElementById('exportBtn');
         const clearBtn = document.getElementById('clearBtn');
-
-        const icons = {
-            session: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/>',
-            profile: '<path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/>',
-            security: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>',
-            system: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>'
-        };
 
         function readJson(key, fallback) {
             try {
@@ -577,14 +549,6 @@
             } catch {
                 return null;
             }
-        }
-
-        function classify(text) {
-            const normalized = String(text).toLowerCase();
-            if (normalized.includes('프로필') || normalized.includes('profile')) return 'profile';
-            if (normalized.includes('보안') || normalized.includes('세션') || normalized.includes('token') || normalized.includes('토큰')) return 'security';
-            if (normalized.includes('로그인') || normalized.includes('대시보드') || normalized.includes('dashboard')) return 'session';
-            return 'system';
         }
 
         function formatDate(value) {
@@ -606,14 +570,13 @@
             }[char]));
         }
 
-        function getHistory() {
-            const history = readJson('nexis_activity_history', '[]');
-            return history.map((item, index) => ({
-                text: item.text || '활동 기록',
+        function getSearchHistory() {
+            return readJson('nexis_search_history', '[]').map((item, index) => ({
+                question: item.question || item.query || '검색어 없음',
+                answer: item.answer || '답변 기록 없음',
                 name: item.name || 'Unknown',
                 email: item.email || 'N/A',
                 timestamp: item.timestamp || new Date().toISOString(),
-                type: item.type || classify(item.text),
                 index
             }));
         }
@@ -634,18 +597,16 @@
 
         function renderHistory() {
             const query = searchInput.value.trim().toLowerCase();
-            const type = typeFilter.value;
             const sort = sortSelect.value;
-            const allHistory = getHistory();
+            const allHistory = getSearchHistory();
             const todayKey = new Date().toDateString();
 
             totalCount.textContent = allHistory.length;
             todayCount.textContent = allHistory.filter(item => new Date(item.timestamp).toDateString() === todayKey).length;
 
             let rows = allHistory.filter(item => {
-                const matchesType = type === 'all' || item.type === type;
-                const haystack = `${item.text} ${item.name} ${item.email}`.toLowerCase();
-                return matchesType && haystack.includes(query);
+                const haystack = `${item.question} ${item.answer} ${item.name} ${item.email}`.toLowerCase();
+                return haystack.includes(query);
             });
 
             rows.sort((a, b) => {
@@ -659,8 +620,8 @@
             if (!rows.length) {
                 historyList.innerHTML = `
                     <div class="empty">
-                        <strong>표시할 기록이 없습니다</strong>
-                        <span>대시보드에 로그인하거나 프로필을 수정하면 이곳에 활동이 쌓입니다.</span>
+                        <strong>검색 기록이 없습니다</strong>
+                        <span>Nexis AI 비서에게 질문하면 이곳에 검색어와 답변이 함께 저장됩니다.</span>
                     </div>
                 `;
                 return;
@@ -668,12 +629,13 @@
 
             historyList.innerHTML = rows.map(item => `
                 <article class="history-row">
-                    <div class="type-icon ${item.type}" aria-hidden="true">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">${icons[item.type] || icons.system}</svg>
+                    <div class="record-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                     </div>
                     <div>
-                        <div class="history-title">${escapeHtml(item.text)}</div>
-                        <div class="history-sub">${escapeHtml(item.name)} · ${escapeHtml(item.email)}</div>
+                        <div class="question">Q. ${escapeHtml(item.question)}</div>
+                        <div class="answer">A. ${escapeHtml(item.answer)}</div>
+                        <div class="meta">${escapeHtml(item.name)} · ${escapeHtml(item.email)}</div>
                     </div>
                     <time class="history-time" datetime="${escapeHtml(item.timestamp)}">${formatDate(item.timestamp)}</time>
                 </article>
@@ -681,8 +643,8 @@
         }
 
         function exportCsv() {
-            const rows = getHistory();
-            const header = ['type', 'text', 'name', 'email', 'timestamp'];
+            const rows = getSearchHistory();
+            const header = ['question', 'answer', 'name', 'email', 'timestamp'];
             const csv = [
                 header.join(','),
                 ...rows.map(row => header.map(key => `"${String(row[key] || '').replace(/"/g, '""')}"`).join(','))
@@ -692,18 +654,18 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'nexis-history.csv';
+            link.download = 'nexis-search-history.csv';
             link.click();
             URL.revokeObjectURL(url);
         }
 
         function clearHistory() {
-            if (!confirm('모든 활동 기록을 삭제할까요?')) return;
-            localStorage.removeItem('nexis_activity_history');
+            if (!confirm('모든 검색 기록을 삭제할까요?')) return;
+            localStorage.removeItem('nexis_search_history');
             renderHistory();
         }
 
-        [searchInput, typeFilter, sortSelect].forEach(control => {
+        [searchInput, sortSelect].forEach(control => {
             control.addEventListener('input', renderHistory);
         });
         exportBtn.addEventListener('click', exportCsv);
