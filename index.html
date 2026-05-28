@@ -543,20 +543,7 @@
             box-shadow: var(--glass-shadow);
             overflow: hidden;
             transition: var(--transition-smooth);
-            transform: scale(0.95);
             opacity: 0;
-        }
-
-        .dashboard-wrapper.active {
-            display: block;
-            animation: zoomIn 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-        }
-
-        @keyframes zoomIn {
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
         }
 
         /* Dashboard Internal Header */
@@ -620,6 +607,31 @@
             margin-top: 4px;
         }
 
+        /* Premium Buttons */
+        .btn-ai-trigger {
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            color: #c084fc;
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            outline: none;
+        }
+
+        .btn-ai-trigger:hover {
+            background: rgba(139, 92, 246, 0.25);
+            border-color: rgba(139, 92, 246, 0.45);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.15);
+        }
+
         .btn-logout {
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid rgba(239, 68, 68, 0.2);
@@ -633,6 +645,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            outline: none;
         }
 
         .btn-logout:hover {
@@ -640,64 +653,6 @@
             border-color: rgba(239, 68, 68, 0.4);
             color: #fff;
             transform: translateY(-1px);
-        }
-
-        /* --------------------------------------------------
-         * Dashboard Premium Tab Bar System
-         * -------------------------------------------------- */
-        .db-tabs {
-            display: flex;
-            background: rgba(0, 0, 0, 0.15);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 0 40px;
-            gap: 8px;
-        }
-
-        .db-tab-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            padding: 18px 24px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            position: relative;
-            transition: var(--transition-fast);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            outline: none;
-        }
-
-        .db-tab-btn:hover {
-            color: #fff;
-        }
-
-        .db-tab-btn.active {
-            color: var(--accent-purple);
-        }
-
-        .db-tab-btn.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--accent-gradient);
-        }
-
-        /* Tab Content Control */
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        #tabContentDashboard.active {
-            display: grid; /* Keeps original dashboard grid */
         }
 
         /* Dashboard Body Layout */
@@ -863,8 +818,46 @@
         }
 
         /* --------------------------------------------------
-         * 6.1 Nexis AI Chat (GPT-style search interface) Styles
+         * 6.1 Dedicated Nexis AI Chat Card Styles
          * -------------------------------------------------- */
+        .ai-chat-wrapper {
+            display: none; /* Initially hidden */
+            width: 100%;
+            max-width: 680px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--glass-shadow);
+            overflow: hidden;
+            transition: var(--transition-smooth);
+            opacity: 0;
+        }
+
+        .btn-back-to-db {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            outline: none;
+        }
+
+        .btn-back-to-db:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -938,7 +931,7 @@
         .bubble-text {
             padding: 12px 18px;
             border-radius: var(--radius-sm);
-            font-size: 13.5px;
+            font-size: 13px;
             line-height: 1.5;
             white-space: pre-line; /* Preserves multiline breaks naturally */
         }
@@ -1074,6 +1067,69 @@
 
         .btn-send:active {
             transform: scale(0.95);
+        }
+
+        /* --------------------------------------------------
+         * 6.2 Sliding Transitions for Card Deck
+         * -------------------------------------------------- */
+        .fade-slide-in {
+            animation: fadeSlideIn 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+        }
+
+        .fade-slide-out {
+            animation: fadeSlideOut 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        @keyframes fadeSlideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-50px) scale(0.97);
+            }
+        }
+
+        .fade-slide-back-in {
+            animation: fadeSlideBackIn 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+        }
+
+        .fade-slide-back-out {
+            animation: fadeSlideBackOut 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+        }
+
+        @keyframes fadeSlideBackIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        @keyframes fadeSlideBackOut {
+            from {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(50px) scale(0.97);
+            }
         }
 
         /* --------------------------------------------------
@@ -1340,26 +1396,19 @@
                         <p id="dbUserEmail">user@domain.com</p>
                     </div>
                 </div>
-                <button class="btn-logout" id="logoutBtn" aria-label="로그아웃">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                    <span>로그아웃</span>
-                </button>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <button class="btn-ai-trigger" id="openAiChatBtn" aria-label="AI 비서와 대화하기">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <span>Nexis AI 비서</span>
+                    </button>
+                    <button class="btn-logout" id="logoutBtn" aria-label="로그아웃">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        <span>로그아웃</span>
+                    </button>
+                </div>
             </header>
-
-            <!-- Dashboard Navigation Tabs -->
-            <div class="db-tabs">
-                <button class="db-tab-btn active" data-tab="dashboard" aria-label="대시보드 홈 화면 보기">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
-                    대시보드 홈
-                </button>
-                <button class="db-tab-btn" data-tab="ai-chat" aria-label="Nexis AI 검색창 대화 보기">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    Nexis AI 검색 (GPT)
-                </button>
-            </div>
             
-            <!-- TAB CONTENT 1: Home Dashboard Grid -->
-            <div id="tabContentDashboard" class="tab-content active db-content">
+            <div class="db-content">
                 <!-- Left panel: Account statistics and metrics -->
                 <section aria-labelledby="statsTitle">
                     <h4 class="section-title" id="statsTitle">
@@ -1435,35 +1484,49 @@
                     </div>
                 </aside>
             </div>
+        </main>
 
-            <!-- TAB CONTENT 2: GPT-style AI Search and Assistant -->
-            <div id="tabContentAiChat" class="tab-content">
-                <div class="chat-container">
-                    <!-- Chat History logs viewport -->
-                    <div class="chat-messages" id="chatMessages"></div>
-                    
-                    <!-- Dynamic Suggestion Quick Prompt Chips -->
-                    <div class="chat-suggestions">
-                        <button class="suggestion-pill" data-prompt="🔒 내 가입 정보 조회" aria-label="내 가입 정보 조회 질문 입력하기">
-                            <span>🔒 내 가입 정보 조회</span>
-                        </button>
-                        <button class="suggestion-pill" data-prompt="🛡️ 패스워드 보안 가이드" aria-label="패스워드 보안 가이드 질문 입력하기">
-                            <span>🛡️ 패스워드 보안 가이드</span>
-                        </button>
-                        <button class="suggestion-pill" data-prompt="💡 Nexis OS 핵심 스펙 소개" aria-label="Nexis OS 핵심 스펙 소개 질문 입력하기">
-                            <span>💡 Nexis OS 핵심 스펙 소개</span>
-                        </button>
+        <!-- 3. Dedicated Standalone AI Assistant Card -->
+        <main class="ai-chat-wrapper" id="aiChatWrapper" aria-labelledby="aiChatTitle">
+            <header class="db-header">
+                <div class="db-user-profile">
+                    <div class="db-avatar" style="background: var(--accent-gradient);">AI</div>
+                    <div class="db-user-details">
+                        <h3 id="aiChatTitle">Nexis AI Assistant</h3>
+                        <p>마스터 계정 보안 및 플랫폼 비서</p>
                     </div>
-                    
-                    <!-- Bottom Chat Entry panel -->
-                    <div class="chat-input-container">
-                        <form id="chatForm" autocomplete="off" class="chat-input-bar">
-                            <input type="text" id="chatInput" class="chat-input" placeholder="Nexis AI 비서에게 질문하거나 정보를 검색하세요...">
-                            <button type="submit" class="btn-send" aria-label="질문 전송">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                            </button>
-                        </form>
-                    </div>
+                </div>
+                <button class="btn-back-to-db" id="backToDbBtn" aria-label="대시보드로 돌아가기">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    <span>대시보드 홈</span>
+                </button>
+            </header>
+            
+            <div class="chat-container">
+                <!-- Chat History logs viewport -->
+                <div class="chat-messages" id="chatMessages"></div>
+                
+                <!-- Dynamic Suggestion Quick Prompt Chips -->
+                <div class="chat-suggestions">
+                    <button class="suggestion-pill" data-prompt="🔒 내 가입 정보 조회" aria-label="내 가입 정보 조회 질문 입력하기">
+                        <span>🔒 내 가입 정보 조회</span>
+                    </button>
+                    <button class="suggestion-pill" data-prompt="🛡️ 패스워드 보안 가이드" aria-label="패스워드 보안 가이드 질문 입력하기">
+                        <span>🛡️ 패스워드 보안 가이드</span>
+                    </button>
+                    <button class="suggestion-pill" data-prompt="💡 Nexis OS 핵심 스펙 소개" aria-label="Nexis OS 핵심 스펙 소개 질문 입력하기">
+                        <span>💡 Nexis OS 핵심 스펙 소개</span>
+                    </button>
+                </div>
+                
+                <!-- Bottom Chat Entry panel -->
+                <div class="chat-input-container">
+                    <form id="chatForm" autocomplete="off" class="chat-input-bar">
+                        <input type="text" id="chatInput" class="chat-input" placeholder="Nexis AI 비서에게 질문하거나 정보를 검색하세요...">
+                        <button type="submit" class="btn-send" aria-label="질문 전송">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                        </button>
+                    </form>
                 </div>
             </div>
         </main>
@@ -1483,6 +1546,7 @@
             const authCardWrapper = document.getElementById('authCardWrapper');
             const authSlider = document.getElementById('authSlider');
             const dashboardWrapper = document.getElementById('dashboardWrapper');
+            const aiChatWrapper = document.getElementById('aiChatWrapper');
             
             // Links
             const toSignUp = document.getElementById('toSignUp');
@@ -1783,13 +1847,13 @@
                 chatMessages.innerHTML = '';
                 addAiBubble(`안녕하세요, ${user.name}님! Nexis AI Assistant입니다. 무엇을 도와드릴까요?\n\n아래 추천 질문을 클릭하거나 궁금한 점을 하단 검색창에 입력해 보세요.`, false);
 
-                // Shift Interface panels
+                // Reset screens displays
+                aiChatWrapper.style.display = 'none';
+                aiChatWrapper.className = 'ai-chat-wrapper';
+                
                 authCardWrapper.style.display = 'none';
                 dashboardWrapper.style.display = 'block';
-                // Trigger transition styles
-                setTimeout(() => {
-                    dashboardWrapper.classList.add('active');
-                }, 50);
+                dashboardWrapper.className = 'dashboard-wrapper fade-slide-in';
             }
             
             function logActivity(text) {
@@ -1853,19 +1917,15 @@
                 
                 showToast('로그아웃되었습니다. 안전하게 세션을 종료했습니다.', 'info');
                 
-                // Return tabs to active home tab
-                tabButtons.forEach(b => b.classList.remove('active'));
-                tabButtons[0].classList.add('active');
-                tabContents.forEach(tc => tc.classList.remove('active'));
-                document.getElementById('tabContentDashboard').classList.add('active');
+                // Hide dashboard and chat views
+                dashboardWrapper.className = 'dashboard-wrapper';
+                dashboardWrapper.style.display = 'none';
+                aiChatWrapper.className = 'ai-chat-wrapper';
+                aiChatWrapper.style.display = 'none';
 
-                // Reverse page presentation transitions
-                dashboardWrapper.classList.remove('active');
-                setTimeout(() => {
-                    dashboardWrapper.style.display = 'none';
-                    authCardWrapper.style.display = 'block';
-                    authSlider.style.transform = 'translateX(0%)';
-                }, 500);
+                // Display Login screen
+                authCardWrapper.style.display = 'block';
+                authSlider.style.transform = 'translateX(0%)';
             });
 
             // --- Persisted Session Check on Load ---
@@ -1888,29 +1948,38 @@
             }
 
             // --------------------------------------------------
-            // 9. Premium Tab Switch Event Handler
+            // 9. Sliding Deck Screens Transitions Logic
             // --------------------------------------------------
-            const tabButtons = document.querySelectorAll('.db-tab-btn');
-            const tabContents = document.querySelectorAll('.tab-content');
-            
-            tabButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const tabId = btn.getAttribute('data-tab');
+            const openAiChatBtn = document.getElementById('openAiChatBtn');
+            const backToDbBtn = document.getElementById('backToDbBtn');
+
+            openAiChatBtn.addEventListener('click', () => {
+                // Dashboard slides out left
+                dashboardWrapper.className = 'dashboard-wrapper fade-slide-out';
+                
+                // Wait for the slide-out transition to complete (480ms)
+                setTimeout(() => {
+                    dashboardWrapper.style.display = 'none';
                     
-                    // Switch active button state
-                    tabButtons.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
+                    // Show AI chat sliding in from right
+                    aiChatWrapper.style.display = 'block';
+                    aiChatWrapper.className = 'ai-chat-wrapper fade-slide-in';
+                    scrollToBottom();
+                }, 480);
+            });
+
+            backToDbBtn.addEventListener('click', () => {
+                // AI chat slides out right
+                aiChatWrapper.className = 'ai-chat-wrapper fade-slide-back-out';
+                
+                // Wait for slide-out transition
+                setTimeout(() => {
+                    aiChatWrapper.style.display = 'none';
                     
-                    // Switch active content view
-                    tabContents.forEach(tc => tc.classList.remove('active'));
-                    if (tabId === 'dashboard') {
-                        document.getElementById('tabContentDashboard').classList.add('active');
-                    } else {
-                        document.getElementById('tabContentAiChat').classList.add('active');
-                        // Focus and scroll
-                        scrollToBottom();
-                    }
-                });
+                    // Show Dashboard sliding back in from left
+                    dashboardWrapper.style.display = 'block';
+                    dashboardWrapper.className = 'dashboard-wrapper fade-slide-back-in';
+                }, 480);
             });
 
             // --------------------------------------------------
@@ -2015,7 +2084,7 @@
                 
                 // 1. User Account details
                 if (q.includes('내 정보') || q.includes('가입 정보') || q.includes('이메일') || q.includes('가입일')) {
-                    return `현재 로그인 중인 계정의 마스터 정보입니다.\n\n• 마스터 성함: ${userObj.name}님\n• 등록 이메일: ${userObj.email}\n• 보안 액세스 레벨: Standard Member\n• 최근 로그인 일시: ${dbSessionTime.textContent}\n\n다른 시스템 변경 사항이 필요하시면 대시보드 홈 탭 하단의 '프로필 설정'을 통해 상시 업데이트가 가능합니다.`;
+                    return `현재 로그인 중인 계정의 마스터 정보입니다.\n\n• 마스터 성함: ${userObj.name}님\n• 등록 이메일: ${userObj.email}\n• 보안 액세스 레벨: Standard Member\n• 최근 로그인 일시: ${dbSessionTime.textContent}\n\n다른 시스템 변경 사항이 필요하시면 대시보드 홈 화면의 '프로필 설정'을 통해 상시 업데이트가 가능합니다.`;
                 }
                 
                 // 2. Security tips
@@ -2042,7 +2111,7 @@
                 const fallbackAnswers = [
                     `${userObj.name}님, 질문해 주셔서 감사합니다! Nexis AI 비서는 대화형으로 인증 시스템 제어 및 계정 보안 가이드를 돕는 전용 모델입니다. 혹시 "내 가입 정보 조회"나 "패스워드 보안 가이드"에 대해 알고 싶으신가요?`,
                     `문의하신 "${query}"에 대한 최적의 보안 매트릭스를 분석하고 있습니다. 넥시스 환경은 프론트엔드 단독 환경으로 안전하게 캡슐화되어 있어, 어떠한 외부 유출 위험도 존재하지 않습니다. 추가적인 프로필 정보 조정이나 보안 레벨 문의가 있으시다면 언제든 말씀해 주세요.`,
-                    `인증 서버와의 원격 인터페이스를 시뮬레이션한 결과, 요청하신 사항은 시스템 상에서 정상 지원 가능 범주에 포함됩니다. 계정 이름 및 소개 수정은 '대시보드 홈' 하단의 '프로필 설정'에서 간편하게 처리 가능하오니 참고해 주시기 바랍니다.`
+                    `인증 서버와의 원격 인터페이스를 시뮬레이션한 결과, 요청하신 사항은 시스템 상에서 정상 지원 가능 범주에 포함됩니다. 계정 이름 및 소개 수정은 '대시보드 홈' 화면의 '프로필 설정'에서 간편하게 처리 가능하오니 참고해 주시기 바랍니다.`
                 ];
                 
                 return fallbackAnswers[Math.floor(Math.random() * fallbackAnswers.length)];
