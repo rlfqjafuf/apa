@@ -632,6 +632,30 @@
             box-shadow: 0 4px 15px rgba(139, 92, 246, 0.15);
         }
 
+        .btn-history {
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.24);
+            color: #67e8f9;
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            outline: none;
+            text-decoration: none;
+        }
+
+        .btn-history:hover {
+            background: rgba(6, 182, 212, 0.22);
+            border-color: rgba(6, 182, 212, 0.42);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
         .btn-logout {
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid rgba(239, 68, 68, 0.2);
@@ -1397,6 +1421,10 @@
                     </div>
                 </div>
                 <div style="display: flex; gap: 12px; align-items: center;">
+                    <a class="btn-history" href="history.html" aria-label="기록 페이지로 이동">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                        <span>기록</span>
+                    </a>
                     <button class="btn-ai-trigger" id="openAiChatBtn" aria-label="AI 비서와 대화하기">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                         <span>Nexis AI 비서</span>
@@ -1858,6 +1886,17 @@
             
             function logActivity(text) {
                 const now = new Date();
+                const activeSession = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
+                const activeUser = activeSession ? JSON.parse(activeSession) : {};
+                const history = JSON.parse(localStorage.getItem('nexis_activity_history') || '[]');
+                history.unshift({
+                    text,
+                    name: activeUser.name || 'Unknown',
+                    email: activeUser.email || 'N/A',
+                    timestamp: now.toISOString()
+                });
+                localStorage.setItem('nexis_activity_history', JSON.stringify(history.slice(0, 100)));
+
                 const item = document.createElement('div');
                 item.className = 'activity-item';
                 item.innerHTML = `

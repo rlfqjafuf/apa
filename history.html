@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexis | 기록</title>
+    <meta name="description" content="Nexis 계정 활동 기록 페이지">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0b10;
+            --bg-secondary: #11131c;
+            --panel: rgba(255, 255, 255, 0.035);
+            --panel-strong: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.09);
+            --border-focus: rgba(6, 182, 212, 0.45);
+            --text-primary: #f3f4f6;
+            --text-secondary: #a7adbb;
+            --text-muted: #6b7280;
+            --accent-purple: #8b5cf6;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+            --shadow: 0 24px 60px rgba(0, 0, 0, 0.34);
+            --font-outfit: 'Outfit', 'Inter', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                linear-gradient(135deg, rgba(139, 92, 246, 0.14), transparent 34%),
+                linear-gradient(225deg, rgba(6, 182, 212, 0.12), transparent 30%),
+                radial-gradient(circle at 50% 0%, #191c2a 0%, var(--bg-primary) 52%);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.5;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        .page {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 28px 0 40px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .logo {
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            display: grid;
+            place-items: center;
+            font-family: var(--font-outfit);
+            font-weight: 800;
+            box-shadow: 0 14px 30px rgba(59, 130, 246, 0.24);
+        }
+
+        .brand-title {
+            font-family: var(--font-outfit);
+            font-size: 23px;
+            font-weight: 800;
+        }
+
+        .brand-subtitle {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            min-height: 40px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--panel);
+            color: var(--text-primary);
+            padding: 9px 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            background: var(--panel-strong);
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+
+        .btn-danger {
+            color: #fecaca;
+            border-color: rgba(239, 68, 68, 0.24);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 320px;
+            gap: 22px;
+            align-items: stretch;
+            margin-bottom: 22px;
+        }
+
+        .summary,
+        .profile,
+        .toolbar,
+        .history-panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .summary {
+            padding: 28px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .summary::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan), var(--success));
+        }
+
+        h1 {
+            font-family: var(--font-outfit);
+            font-size: clamp(30px, 5vw, 52px);
+            line-height: 1.02;
+            letter-spacing: 0;
+            margin-bottom: 12px;
+        }
+
+        .summary-copy {
+            max-width: 670px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 26px;
+        }
+
+        .stat {
+            min-height: 96px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.03);
+            padding: 16px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            margin-top: 6px;
+            font-family: var(--font-outfit);
+            font-size: 30px;
+            font-weight: 800;
+        }
+
+        .profile {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 22px;
+        }
+
+        .avatar {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            font-family: var(--font-outfit);
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .profile-name {
+            margin-top: 14px;
+            font-family: var(--font-outfit);
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .profile-email,
+        .profile-meta {
+            color: var(--text-secondary);
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        .profile-meta {
+            display: grid;
+            gap: 8px;
+        }
+
+        .toolbar {
+            padding: 16px;
+            display: grid;
+            grid-template-columns: minmax(180px, 1fr) 170px 170px;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .field {
+            position: relative;
+        }
+
+        .field svg {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .control {
+            width: 100%;
+            min-height: 44px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.035);
+            color: var(--text-primary);
+            outline: none;
+            padding: 10px 12px;
+        }
+
+        .field .control {
+            padding-left: 42px;
+        }
+
+        .control:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.12);
+        }
+
+        select.control option {
+            color: #111827;
+        }
+
+        .history-panel {
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .panel-title {
+            font-family: var(--font-outfit);
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .panel-count {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .history-list {
+            display: grid;
+        }
+
+        .history-row {
+            display: grid;
+            grid-template-columns: 44px minmax(0, 1fr) 190px;
+            gap: 16px;
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+        }
+
+        .history-row:last-child {
+            border-bottom: 0;
+        }
+
+        .type-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: rgba(139, 92, 246, 0.16);
+            color: #c4b5fd;
+        }
+
+        .type-icon.profile {
+            background: rgba(6, 182, 212, 0.14);
+            color: #67e8f9;
+            border-radius: 12px;
+            border: 0;
+            box-shadow: none;
+            padding: 0;
+        }
+
+        .type-icon.session {
+            background: rgba(16, 185, 129, 0.14);
+            color: #6ee7b7;
+        }
+
+        .type-icon.security {
+            background: rgba(245, 158, 11, 0.14);
+            color: #fcd34d;
+        }
+
+        .history-title {
+            font-weight: 700;
+            color: #fff;
+            overflow-wrap: anywhere;
+        }
+
+        .history-sub {
+            margin-top: 4px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        .history-time {
+            color: var(--text-secondary);
+            font-size: 13px;
+            text-align: right;
+        }
+
+        .empty {
+            padding: 44px 24px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .empty strong {
+            display: block;
+            color: #fff;
+            font-family: var(--font-outfit);
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 860px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            .toolbar {
+                grid-template-columns: 1fr;
+            }
+
+            .history-row {
+                grid-template-columns: 38px minmax(0, 1fr);
+            }
+
+            .history-time {
+                grid-column: 2;
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page {
+                width: min(100% - 24px, 1180px);
+                padding-top: 18px;
+            }
+
+            .topbar,
+            .panel-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .actions {
+                width: 100%;
+                justify-content: stretch;
+            }
+
+            .actions .btn {
+                flex: 1;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .summary,
+            .profile {
+                padding: 22px;
+            }
+
+            .history-row {
+                padding: 16px;
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <header class="topbar">
+            <div class="brand">
+                <div class="logo">N</div>
+                <div>
+                    <div class="brand-title">Nexis</div>
+                    <div class="brand-subtitle">계정 활동 기록</div>
+                </div>
+            </div>
+            <div class="actions">
+                <a class="btn" href="index.html" aria-label="대시보드로 돌아가기">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+                    대시보드
+                </a>
+                <button class="btn" id="exportBtn" type="button" aria-label="CSV로 내보내기">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+                    CSV
+                </button>
+                <button class="btn btn-danger" id="clearBtn" type="button" aria-label="기록 삭제">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>
+                    삭제
+                </button>
+            </div>
+        </header>
+
+        <section class="hero" aria-labelledby="historyTitle">
+            <div class="summary">
+                <h1 id="historyTitle">기록 페이지</h1>
+                <p class="summary-copy">로그인, 대시보드 진입, 프로필 변경 같은 계정 활동을 한곳에서 확인합니다. 최근 100개의 활동이 브라우저에 안전하게 저장됩니다.</p>
+                <div class="stats" aria-label="기록 요약">
+                    <div class="stat">
+                        <div class="stat-label">전체 기록</div>
+                        <div class="stat-value" id="totalCount">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">오늘 기록</div>
+                        <div class="stat-value" id="todayCount">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">등록 계정</div>
+                        <div class="stat-value" id="userCount">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="profile" aria-label="현재 계정">
+                <div>
+                    <div class="avatar" id="profileAvatar">U</div>
+                    <div class="profile-name" id="profileName">게스트</div>
+                    <div class="profile-email" id="profileEmail">로그인 정보 없음</div>
+                </div>
+                <div class="profile-meta">
+                    <span id="lastLogin">최근 세션: 없음</span>
+                    <span id="storageMode">저장 위치: 브라우저</span>
+                </div>
+            </aside>
+        </section>
+
+        <section class="toolbar" aria-label="기록 필터">
+            <label class="field">
+                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input class="control" id="searchInput" type="search" placeholder="기록 검색">
+            </label>
+            <select class="control" id="typeFilter" aria-label="기록 유형">
+                <option value="all">전체 유형</option>
+                <option value="session">세션</option>
+                <option value="profile">프로필</option>
+                <option value="security">보안</option>
+                <option value="system">시스템</option>
+            </select>
+            <select class="control" id="sortSelect" aria-label="정렬">
+                <option value="newest">최신순</option>
+                <option value="oldest">오래된순</option>
+            </select>
+        </section>
+
+        <section class="history-panel" aria-labelledby="listTitle">
+            <div class="panel-header">
+                <div>
+                    <div class="panel-title" id="listTitle">활동 내역</div>
+                    <div class="panel-count" id="visibleCount">표시 중 0개</div>
+                </div>
+            </div>
+            <div class="history-list" id="historyList"></div>
+        </section>
+    </div>
+
+    <script>
+        const historyList = document.getElementById('historyList');
+        const searchInput = document.getElementById('searchInput');
+        const typeFilter = document.getElementById('typeFilter');
+        const sortSelect = document.getElementById('sortSelect');
+        const visibleCount = document.getElementById('visibleCount');
+        const totalCount = document.getElementById('totalCount');
+        const todayCount = document.getElementById('todayCount');
+        const userCount = document.getElementById('userCount');
+        const exportBtn = document.getElementById('exportBtn');
+        const clearBtn = document.getElementById('clearBtn');
+
+        const icons = {
+            session: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/>',
+            profile: '<path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/>',
+            security: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>',
+            system: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>'
+        };
+
+        function readJson(key, fallback) {
+            try {
+                return JSON.parse(localStorage.getItem(key) || fallback);
+            } catch {
+                return JSON.parse(fallback);
+            }
+        }
+
+        function getSession() {
+            const raw = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
+            if (!raw) return null;
+            try {
+                return JSON.parse(raw);
+            } catch {
+                return null;
+            }
+        }
+
+        function classify(text) {
+            const normalized = String(text).toLowerCase();
+            if (normalized.includes('프로필') || normalized.includes('profile')) return 'profile';
+            if (normalized.includes('보안') || normalized.includes('세션') || normalized.includes('token') || normalized.includes('토큰')) return 'security';
+            if (normalized.includes('로그인') || normalized.includes('대시보드') || normalized.includes('dashboard')) return 'session';
+            return 'system';
+        }
+
+        function formatDate(value) {
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '시간 정보 없음';
+            return new Intl.DateTimeFormat('ko-KR', {
+                dateStyle: 'medium',
+                timeStyle: 'short'
+            }).format(date);
+        }
+
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
+        function getHistory() {
+            const history = readJson('nexis_activity_history', '[]');
+            return history.map((item, index) => ({
+                text: item.text || '활동 기록',
+                name: item.name || 'Unknown',
+                email: item.email || 'N/A',
+                timestamp: item.timestamp || new Date().toISOString(),
+                type: item.type || classify(item.text),
+                index
+            }));
+        }
+
+        function renderProfile() {
+            const session = getSession();
+            const users = readJson('nexis_users', '[]');
+            userCount.textContent = users.length;
+
+            if (!session) return;
+
+            document.getElementById('profileAvatar').textContent = (session.name || 'U').charAt(0);
+            document.getElementById('profileName').textContent = session.name || '사용자';
+            document.getElementById('profileEmail').textContent = session.email || '이메일 없음';
+            document.getElementById('lastLogin').textContent = `최근 세션: ${session.loggedInAt || '확인 불가'}`;
+            document.getElementById('storageMode').textContent = localStorage.getItem('nexis_session') ? '저장 위치: localStorage' : '저장 위치: sessionStorage';
+        }
+
+        function renderHistory() {
+            const query = searchInput.value.trim().toLowerCase();
+            const type = typeFilter.value;
+            const sort = sortSelect.value;
+            const allHistory = getHistory();
+            const todayKey = new Date().toDateString();
+
+            totalCount.textContent = allHistory.length;
+            todayCount.textContent = allHistory.filter(item => new Date(item.timestamp).toDateString() === todayKey).length;
+
+            let rows = allHistory.filter(item => {
+                const matchesType = type === 'all' || item.type === type;
+                const haystack = `${item.text} ${item.name} ${item.email}`.toLowerCase();
+                return matchesType && haystack.includes(query);
+            });
+
+            rows.sort((a, b) => {
+                const left = new Date(a.timestamp).getTime();
+                const right = new Date(b.timestamp).getTime();
+                return sort === 'oldest' ? left - right : right - left;
+            });
+
+            visibleCount.textContent = `표시 중 ${rows.length}개`;
+
+            if (!rows.length) {
+                historyList.innerHTML = `
+                    <div class="empty">
+                        <strong>표시할 기록이 없습니다</strong>
+                        <span>대시보드에 로그인하거나 프로필을 수정하면 이곳에 활동이 쌓입니다.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            historyList.innerHTML = rows.map(item => `
+                <article class="history-row">
+                    <div class="type-icon ${item.type}" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">${icons[item.type] || icons.system}</svg>
+                    </div>
+                    <div>
+                        <div class="history-title">${escapeHtml(item.text)}</div>
+                        <div class="history-sub">${escapeHtml(item.name)} · ${escapeHtml(item.email)}</div>
+                    </div>
+                    <time class="history-time" datetime="${escapeHtml(item.timestamp)}">${formatDate(item.timestamp)}</time>
+                </article>
+            `).join('');
+        }
+
+        function exportCsv() {
+            const rows = getHistory();
+            const header = ['type', 'text', 'name', 'email', 'timestamp'];
+            const csv = [
+                header.join(','),
+                ...rows.map(row => header.map(key => `"${String(row[key] || '').replace(/"/g, '""')}"`).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'nexis-history.csv';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function clearHistory() {
+            if (!confirm('모든 활동 기록을 삭제할까요?')) return;
+            localStorage.removeItem('nexis_activity_history');
+            renderHistory();
+        }
+
+        [searchInput, typeFilter, sortSelect].forEach(control => {
+            control.addEventListener('input', renderHistory);
+        });
+        exportBtn.addEventListener('click', exportCsv);
+        clearBtn.addEventListener('click', clearHistory);
+
+        renderProfile();
+        renderHistory();
+    </script>
+</body>
+</html>
