@@ -1697,6 +1697,7 @@
      * -------------------------------------------------- -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            let firebaseClient = null;
             
             // --- Elements ---
             const authCardWrapper = document.getElementById('authCardWrapper');
@@ -2036,27 +2037,60 @@
                 activityList.insertBefore(item, activityList.firstChild);
             }
 
-            function saveSearchHistory(question, answer) {
+            async function setupFirebaseClient() {
+                try {
+                    firebaseClient = await import('./firebase-client.js');
+                    await firebaseClient.initFirebaseClient();
+                    renderAiDependency();
+                } catch (error) {
+                    console.warn('Firebase initialization skipped:', error);
+                    firebaseClient = null;
+                }
+            }
+
+            async function saveSearchHistory(question, answer) {
                 const now = new Date();
                 const activeSession = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
                 const activeUser = activeSession ? JSON.parse(activeSession) : {};
-                const history = JSON.parse(localStorage.getItem('nexis_search_history') || '[]');
-                history.unshift({
+                const record = {
                     question,
                     answer,
                     name: activeUser.name || 'Unknown',
                     email: activeUser.email || 'N/A',
                     timestamp: now.toISOString()
-                });
+                };
+                const history = JSON.parse(localStorage.getItem('nexis_search_history') || '[]');
+                history.unshift(record);
                 localStorage.setItem('nexis_search_history', JSON.stringify(history.slice(0, 100)));
+
+                if (firebaseClient && firebaseClient.isFirebaseEnabled()) {
+                    try {
+                        await firebaseClient.saveSearchRecord({
+                            ...record,
+                            email: String(record.email).toLowerCase()
+                        });
+                    } catch (error) {
+                        console.warn('Firestore search history save failed:', error);
+                    }
+                }
+
                 renderAiDependency();
             }
 
-            function readSearchHistoryForCurrentUser() {
+            async function readSearchHistoryForCurrentUser() {
                 const activeSession = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
                 const activeUser = activeSession ? JSON.parse(activeSession) : {};
                 const email = (activeUser.email || '').toLowerCase();
                 const history = JSON.parse(localStorage.getItem('nexis_search_history') || '[]');
+
+                if (firebaseClient && firebaseClient.isFirebaseEnabled()) {
+                    try {
+                        const remoteHistory = await firebaseClient.getSearchRecords(email);
+                        if (remoteHistory) return remoteHistory;
+                    } catch (error) {
+                        console.warn('Firestore search history read failed:', error);
+                    }
+                }
 
                 if (!email) return history;
                 return history.filter(item => (item.email || '').toLowerCase() === email);
@@ -2104,10 +2138,10 @@
                 };
             }
 
-            function renderAiDependency() {
+            async function renderAiDependency() {
                 if (!aiDependencyScore) return;
 
-                const result = calculateAiDependency(readSearchHistoryForCurrentUser());
+                const result = calculateAiDependency(await readSearchHistoryForCurrentUser());
                 aiDependencyScore.textContent = result.score;
                 aiDependencyLevel.textContent = result.level;
                 aiDependencyLevel.className = `dependency-level ${result.levelClass}`.trim();
@@ -2402,7 +2436,7 @@
                 try {
                     const reply = await fetchGptResponse(text);
                     indicator.remove();
-                    saveSearchHistory(text, reply);
+                    await saveSearchHistory(text, reply);
                     addAiBubble(reply, true);
                 } catch (error) {
                     indicator.remove();
@@ -2422,6 +2456,7 @@
             });
             
             // Execute on startup
+            setupFirebaseClient();
             checkAutoLogin();
         });
     </script>

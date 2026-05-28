@@ -7,6 +7,7 @@ const root = __dirname;
 loadEnvFile();
 
 const port = Number(process.env.PORT || 4175);
+const host = process.env.HOST || '0.0.0.0';
 const model = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
 
 const mimeTypes = {
@@ -21,8 +22,24 @@ const server = http.createServer(async (req, res) => {
     try {
         const url = new URL(req.url, `http://${req.headers.host}`);
 
+        if (req.method === 'GET' && url.pathname === '/api/health') {
+            sendJson(res, 200, {
+                ok: true,
+                service: 'nexis-backend',
+                firebaseConfigured: getFirebaseConfig().enabled,
+                openaiConfigured: Boolean(process.env.OPENAI_API_KEY),
+                timestamp: new Date().toISOString()
+            });
+            return;
+        }
+
         if (req.method === 'POST' && url.pathname === '/api/search') {
             await handleSearch(req, res);
+            return;
+        }
+
+        if (req.method === 'GET' && url.pathname === '/api/firebase-config') {
+            sendJson(res, 200, getFirebaseConfig());
             return;
         }
 
@@ -38,8 +55,9 @@ const server = http.createServer(async (req, res) => {
     }
 });
 
-server.listen(port, '127.0.0.1', () => {
-    console.log(`Nexis app: http://127.0.0.1:${port}`);
+server.listen(port, host, () => {
+    const displayHost = host === '0.0.0.0' ? '127.0.0.1' : host;
+    console.log(`Nexis app: http://${displayHost}:${port}`);
 });
 
 function loadEnvFile() {
@@ -83,6 +101,32 @@ function serveStatic(requestPath, res) {
         res.writeHead(200, { 'Content-Type': contentType });
         res.end(data);
     });
+}
+
+function getFirebaseConfig() {
+    const config = {
+        apiKey: process.env.FIREBASE_API_KEY || '',
+        authDomain: process.env.FIREBASE_AUTH_DOMAIN || '',
+        projectId: process.env.FIREBASE_PROJECT_ID || '',
+        storageBucket: process.env.FIREBASE_STORAGE_BUCKET || '',
+        messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || '',
+        appId: process.env.FIREBASE_APP_ID || '',
+        databaseURL: process.env.FIREBASE_DATABASE_URL || '',
+        measurementId: process.env.FIREBASE_MEASUREMENT_ID || ''
+    };
+
+    const enabled = Boolean(
+        config.apiKey &&
+        config.authDomain &&
+        config.projectId &&
+        config.storageBucket &&
+        config.appId
+    );
+
+    return {
+        enabled,
+        config: enabled ? config : null
+    };
 }
 
 async function handleSearch(req, res) {

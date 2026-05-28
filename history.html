@@ -523,6 +523,7 @@
     </div>
 
     <script>
+        let firebaseClient = null;
         const historyList = document.getElementById('historyList');
         const searchInput = document.getElementById('searchInput');
         const sortSelect = document.getElementById('sortSelect');
@@ -533,6 +534,16 @@
         const exportBtn = document.getElementById('exportBtn');
         const clearBtn = document.getElementById('clearBtn');
         userCount.closest('.stat').querySelector('.stat-label').textContent = 'AI 의존도';
+
+        async function setupFirebaseClient() {
+            try {
+                firebaseClient = await import('./firebase-client.js');
+                await firebaseClient.initFirebaseClient();
+            } catch (error) {
+                console.warn('Firebase initialization skipped:', error);
+                firebaseClient = null;
+            }
+        }
 
         function readJson(key, fallback) {
             try {
@@ -582,6 +593,24 @@
             }));
         }
 
+        async function getSearchHistorySource() {
+            const session = getSession();
+            const email = (session?.email || '').toLowerCase();
+
+            if (firebaseClient && firebaseClient.isFirebaseEnabled()) {
+                try {
+                    const remoteHistory = await firebaseClient.getSearchRecords(email);
+                    if (remoteHistory) return remoteHistory;
+                } catch (error) {
+                    console.warn('Firestore search history read failed:', error);
+                }
+            }
+
+            const localHistory = getSearchHistory();
+            if (!email) return localHistory;
+            return localHistory.filter(item => (item.email || '').toLowerCase() === email);
+        }
+
         function calculateAiDependency(records) {
             const todayKey = new Date().toDateString();
             const todaySearches = records.filter(item => new Date(item.timestamp).toDateString() === todayKey).length;
@@ -612,10 +641,10 @@
             document.getElementById('storageMode').textContent = localStorage.getItem('nexis_session') ? '저장 위치: localStorage' : '저장 위치: sessionStorage';
         }
 
-        function renderHistory() {
+        async function renderHistory() {
             const query = searchInput.value.trim().toLowerCase();
             const sort = sortSelect.value;
-            const allHistory = getSearchHistory();
+            const allHistory = await getSearchHistorySource();
             const todayKey = new Date().toDateString();
 
             totalCount.textContent = allHistory.length;
@@ -660,8 +689,8 @@
             `).join('');
         }
 
-        function exportCsv() {
-            const rows = getSearchHistory();
+        async function exportCsv() {
+            const rows = await getSearchHistorySource();
             const header = ['question', 'answer', 'name', 'email', 'timestamp'];
             const csv = [
                 header.join(','),
@@ -677,8 +706,17 @@
             URL.revokeObjectURL(url);
         }
 
-        function clearHistory() {
+        async function clearHistory() {
             if (!confirm('모든 검색 기록을 삭제할까요?')) return;
+            const session = getSession();
+            const email = (session?.email || '').toLowerCase();
+            if (firebaseClient && firebaseClient.isFirebaseEnabled()) {
+                try {
+                    await firebaseClient.clearSearchRecords(email);
+                } catch (error) {
+                    console.warn('Firestore search history clear failed:', error);
+                }
+            }
             localStorage.removeItem('nexis_search_history');
             renderHistory();
         }
@@ -689,8 +727,10 @@
         exportBtn.addEventListener('click', exportCsv);
         clearBtn.addEventListener('click', clearHistory);
 
-        renderProfile();
-        renderHistory();
+        setupFirebaseClient().finally(() => {
+            renderProfile();
+            renderHistory();
+        });
     </script>
 </body>
 </html>
