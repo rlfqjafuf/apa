@@ -532,6 +532,7 @@
         const userCount = document.getElementById('userCount');
         const exportBtn = document.getElementById('exportBtn');
         const clearBtn = document.getElementById('clearBtn');
+        userCount.closest('.stat').querySelector('.stat-label').textContent = 'AI 의존도';
 
         function readJson(key, fallback) {
             try {
@@ -581,6 +582,22 @@
             }));
         }
 
+        function calculateAiDependency(records) {
+            const todayKey = new Date().toDateString();
+            const todaySearches = records.filter(item => new Date(item.timestamp).toDateString() === todayKey).length;
+            const normalizedQuestions = records
+                .map(item => String(item.question || '').trim().toLowerCase().replace(/\s+/g, ' '))
+                .filter(Boolean);
+            const repeatCount = Math.max(0, normalizedQuestions.length - new Set(normalizedQuestions).size);
+            const repeatRate = normalizedQuestions.length ? Math.round((repeatCount / normalizedQuestions.length) * 100) : 0;
+
+            return Math.min(100, Math.round(
+                Math.min(30, records.length * 4) +
+                Math.min(40, todaySearches * 10) +
+                Math.min(30, repeatRate * 0.3)
+            ));
+        }
+
         function renderProfile() {
             const session = getSession();
             const users = readJson('nexis_users', '[]');
@@ -603,6 +620,7 @@
 
             totalCount.textContent = allHistory.length;
             todayCount.textContent = allHistory.filter(item => new Date(item.timestamp).toDateString() === todayKey).length;
+            userCount.textContent = `${calculateAiDependency(allHistory)}%`;
 
             let rows = allHistory.filter(item => {
                 const haystack = `${item.question} ${item.answer} ${item.name} ${item.email}`.toLowerCase();

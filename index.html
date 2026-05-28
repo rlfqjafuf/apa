@@ -841,6 +841,103 @@
             margin-top: 2px;
         }
 
+        .dependency-card {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin-top: 24px;
+        }
+
+        .dependency-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .dependency-score {
+            font-family: var(--font-outfit);
+            font-size: 34px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .dependency-level {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            background: rgba(16, 185, 129, 0.12);
+            color: #6ee7b7;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 5px 10px;
+            white-space: nowrap;
+        }
+
+        .dependency-level.medium {
+            border-color: rgba(245, 158, 11, 0.35);
+            background: rgba(245, 158, 11, 0.12);
+            color: #fcd34d;
+        }
+
+        .dependency-level.high {
+            border-color: rgba(239, 68, 68, 0.35);
+            background: rgba(239, 68, 68, 0.12);
+            color: #fca5a5;
+        }
+
+        .dependency-meter {
+            height: 8px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.07);
+            margin-bottom: 16px;
+        }
+
+        .dependency-meter-fill {
+            width: 0%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--success), var(--warning), var(--error));
+            transition: width 0.35s ease;
+        }
+
+        .dependency-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .dependency-metric {
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .dependency-metric span {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 10px;
+            margin-bottom: 3px;
+        }
+
+        .dependency-metric strong {
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .dependency-advice {
+            color: var(--text-secondary);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
         /* --------------------------------------------------
          * 6.1 Dedicated Nexis AI Chat Card Styles
          * -------------------------------------------------- */
@@ -1510,6 +1607,37 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="dependency-card" aria-labelledby="dependencyTitle">
+                        <div class="dependency-header">
+                            <div>
+                                <h4 class="section-title" id="dependencyTitle" style="margin-bottom: 8px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.74V16h8v-1.26A7 7 0 0 0 12 2Z"/></svg>
+                                    AI 의존도
+                                </h4>
+                                <div class="dependency-score"><span id="aiDependencyScore">0</span>%</div>
+                            </div>
+                            <span class="dependency-level" id="aiDependencyLevel">낮음</span>
+                        </div>
+                        <div class="dependency-meter" aria-hidden="true">
+                            <div class="dependency-meter-fill" id="aiDependencyMeter"></div>
+                        </div>
+                        <div class="dependency-grid">
+                            <div class="dependency-metric">
+                                <span>전체 검색</span>
+                                <strong id="aiTotalSearches">0</strong>
+                            </div>
+                            <div class="dependency-metric">
+                                <span>오늘 검색</span>
+                                <strong id="aiTodaySearches">0</strong>
+                            </div>
+                            <div class="dependency-metric">
+                                <span>반복 질문</span>
+                                <strong id="aiRepeatRate">0%</strong>
+                            </div>
+                        </div>
+                        <p class="dependency-advice" id="aiDependencyAdvice">AI 검색 기록이 쌓이면 의존도 분석이 표시됩니다.</p>
+                    </div>
                 </aside>
             </div>
         </main>
@@ -1605,6 +1733,13 @@
             const editBio = document.getElementById('editBio');
             const logoutBtn = document.getElementById('logoutBtn');
             const activityList = document.getElementById('activityList');
+            const aiDependencyScore = document.getElementById('aiDependencyScore');
+            const aiDependencyLevel = document.getElementById('aiDependencyLevel');
+            const aiDependencyMeter = document.getElementById('aiDependencyMeter');
+            const aiTotalSearches = document.getElementById('aiTotalSearches');
+            const aiTodaySearches = document.getElementById('aiTodaySearches');
+            const aiRepeatRate = document.getElementById('aiRepeatRate');
+            const aiDependencyAdvice = document.getElementById('aiDependencyAdvice');
 
             // --- Custom Toast Alert Core System ---
             function showToast(message, type = 'success') {
@@ -1871,6 +2006,8 @@
                 logActivity('보안 세션 토큰 발행 완료');
                 logActivity('메인 대시보드 콘솔 진입');
 
+                renderAiDependency();
+
                 // Reset AI Chat to initial greeting dynamically
                 chatMessages.innerHTML = '';
                 addAiBubble(`안녕하세요, ${user.name}님! Nexis AI Assistant입니다. 무엇을 도와드릴까요?\n\n아래 추천 질문을 클릭하거나 궁금한 점을 하단 검색창에 입력해 보세요.`, false);
@@ -1912,6 +2049,73 @@
                     timestamp: now.toISOString()
                 });
                 localStorage.setItem('nexis_search_history', JSON.stringify(history.slice(0, 100)));
+                renderAiDependency();
+            }
+
+            function readSearchHistoryForCurrentUser() {
+                const activeSession = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
+                const activeUser = activeSession ? JSON.parse(activeSession) : {};
+                const email = (activeUser.email || '').toLowerCase();
+                const history = JSON.parse(localStorage.getItem('nexis_search_history') || '[]');
+
+                if (!email) return history;
+                return history.filter(item => (item.email || '').toLowerCase() === email);
+            }
+
+            function calculateAiDependency(records) {
+                const todayKey = new Date().toDateString();
+                const todayCount = records.filter(item => new Date(item.timestamp).toDateString() === todayKey).length;
+                const normalizedQuestions = records
+                    .map(item => String(item.question || '').trim().toLowerCase().replace(/\s+/g, ' '))
+                    .filter(Boolean);
+                const uniqueCount = new Set(normalizedQuestions).size;
+                const repeatedCount = Math.max(0, normalizedQuestions.length - uniqueCount);
+                const repeatRate = normalizedQuestions.length ? Math.round((repeatedCount / normalizedQuestions.length) * 100) : 0;
+
+                const volumeScore = Math.min(30, records.length * 4);
+                const todayScore = Math.min(40, todayCount * 10);
+                const repeatScore = Math.min(30, repeatRate * 0.3);
+                const score = Math.min(100, Math.round(volumeScore + todayScore + repeatScore));
+
+                let level = '낮음';
+                let levelClass = '';
+                let advice = '균형적으로 사용 중입니다. 중요한 판단은 직접 검토하는 습관을 유지하세요.';
+
+                if (score >= 70) {
+                    level = '높음';
+                    levelClass = 'high';
+                    advice = 'AI 사용 빈도가 높습니다. 답변을 그대로 적용하기보다 근거 확인과 직접 정리를 함께 해보세요.';
+                } else if (score >= 40) {
+                    level = '주의';
+                    levelClass = 'medium';
+                    advice = 'AI 도움을 자주 받고 있습니다. 반복 질문은 메모로 정리하면 의존도를 낮추는 데 도움이 됩니다.';
+                } else if (!records.length) {
+                    advice = 'AI 검색 기록이 쌓이면 의존도 분석이 표시됩니다.';
+                }
+
+                return {
+                    score,
+                    level,
+                    levelClass,
+                    totalCount: records.length,
+                    todayCount,
+                    repeatRate,
+                    advice
+                };
+            }
+
+            function renderAiDependency() {
+                if (!aiDependencyScore) return;
+
+                const result = calculateAiDependency(readSearchHistoryForCurrentUser());
+                aiDependencyScore.textContent = result.score;
+                aiDependencyLevel.textContent = result.level;
+                aiDependencyLevel.className = `dependency-level ${result.levelClass}`.trim();
+                aiDependencyMeter.style.width = `${result.score}%`;
+                aiTotalSearches.textContent = result.totalCount;
+                aiTodaySearches.textContent = result.todayCount;
+                aiRepeatRate.textContent = `${result.repeatRate}%`;
+                aiDependencyAdvice.textContent = result.advice;
             }
 
             // --- Profile Update Form ---
