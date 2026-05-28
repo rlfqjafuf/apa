@@ -1,0 +1,12 @@
+{
+  "name": "nexis-ai-search",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nexis local web app with OpenAI API powered search",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

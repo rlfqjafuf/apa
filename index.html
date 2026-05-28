@@ -2160,8 +2160,28 @@
                 return fallbackAnswers[Math.floor(Math.random() * fallbackAnswers.length)];
             }
 
+            async function fetchGptResponse(query) {
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        question: query,
+                        userName: dbUserName.textContent || '사용자'
+                    })
+                });
+
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(data.error || 'GPT API 답변을 가져오지 못했습니다.');
+                }
+
+                return data.answer || '답변을 생성하지 못했습니다.';
+            }
+
             // Input submit event
-            chatForm.addEventListener('submit', (e) => {
+            chatForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
                 const text = chatInput.value.trim();
@@ -2175,13 +2195,17 @@
                 // Add loading indicator
                 const indicator = addThinkingIndicator();
                 
-                // Sim thinking latency
-                setTimeout(() => {
+                try {
+                    const reply = await fetchGptResponse(text);
                     indicator.remove();
-                    const reply = generateAiResponse(text);
                     saveSearchHistory(text, reply);
                     addAiBubble(reply, true);
-                }, 750);
+                } catch (error) {
+                    indicator.remove();
+                    const message = error.message || 'GPT API 연결 중 오류가 발생했습니다.';
+                    addAiBubble(message, false);
+                    showToast(message, 'error');
+                }
             });
 
             // Suggestion pills click handlers
