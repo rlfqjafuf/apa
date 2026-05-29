@@ -1791,17 +1791,17 @@
                 const confirmPassword = regPasswordConfirm.value;
 
                 if (password.length < 8) {
-                    showToast('鍮꾨?踰덊샇??理쒖냼 8???댁긽?댁뼱???⑸땲??', 'error');
+                    showToast('비밀번호는 최소 8자 이상이어야 합니다.', 'error');
                     return;
                 }
 
                 if (!/\d/.test(password)) {
-                    showToast('鍮꾨?踰덊샇?먮뒗 ?レ옄媛 理쒖냼 1媛??ы븿?섏뼱???⑸땲??', 'error');
+                    showToast('비밀번호에는 숫자가 최소 1개 포함되어야 합니다.', 'error');
                     return;
                 }
 
                 if (password !== confirmPassword) {
-                    showToast('?낅젰??鍮꾨?踰덊샇媛 ?쇱튂?섏? ?딆뒿?덈떎.', 'error');
+                    showToast('입력한 비밀번호가 일치하지 않습니다.', 'error');
                     return;
                 }
 
@@ -1814,14 +1814,14 @@
                     createSession(newUser);
                 } catch (error) {
                     if (isFirebaseAuthSetupError(error)) {
-                        showToast('Firebase Authentication?먯꽌 ?대찓??鍮꾨?踰덊샇 濡쒓렇?몄쓣 癒쇱? ?쒖꽦?뷀빐 二쇱꽭??', 'error');
+                        showToast('계정 서버 설정을 확인해 주세요.', 'error');
                         return;
                     }
                     const message = error.code === 'auth/email-already-in-use'
-                        ? '?대? ?깅줉???대찓??二쇱냼?낅땲??'
+                        ? '이미 등록된 이메일 주소입니다. 로그인 화면에서 로그인해 주세요.'
                         : error.code === 'auth/operation-not-allowed'
-                        ? 'Firebase 肄섏넄?먯꽌 ?대찓??鍮꾨?踰덊샇 濡쒓렇?몄쓣 ?쒖꽦?뷀빐 二쇱꽭??'
-                        : error.message || '?뚯썝媛??以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.';
+                        ? '계정 서버 설정을 확인해 주세요.'
+                        : error.message || '회원가입 중 오류가 발생했습니다.';
                     showToast(message, 'error');
                 }
             }, true);
@@ -1841,12 +1841,12 @@
                     createSession(targetUser);
                 } catch (error) {
                     if (isFirebaseAuthSetupError(error)) {
-                        showToast('Firebase Authentication?먯꽌 ?대찓??鍮꾨?踰덊샇 濡쒓렇?몄쓣 癒쇱? ?쒖꽦?뷀빐 二쇱꽭??', 'error');
+                        showToast('계정 서버 설정을 확인해 주세요.', 'error');
                         return;
                     }
                     const message = error.code === 'auth/invalid-credential'
-                        ? '?대찓???먮뒗 鍮꾨?踰덊샇媛 ?쇱튂?섏? ?딆뒿?덈떎.'
-                        : error.message || '濡쒓렇??以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.';
+                        ? '사용자 정보가 틀렸습니다.'
+                        : error.message || '로그인 중 오류가 발생했습니다.';
                     showToast(message, 'error');
                 }
             }, true);

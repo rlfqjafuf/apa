@@ -33,8 +33,14 @@ function registerAccount(body) {
     return { ok: false, code: 'missing_fields', error: '이름, 이메일, 비밀번호를 모두 입력해 주세요.' };
   }
 
-  if (findAccountByEmail(sheet, email)) {
-    return { ok: false, code: 'duplicate_email', error: '이미 등록된 이메일 주소입니다.' };
+  const existing = findAccountByEmail(sheet, email);
+  if (existing) {
+    sheet.getRange(existing.rowIndex, 1, 1, 4).setValues([[name, id, email, password]]);
+    return {
+      ok: true,
+      updated: true,
+      user: { name, id, email }
+    };
   }
 
   sheet.appendRow([name, id, email, password]);
@@ -82,12 +88,14 @@ function findAccountByEmail(sheet, email) {
   if (lastRow < 2) return null;
 
   const rows = sheet.getRange(2, 1, lastRow - 1, 4).getValues();
-  for (const row of rows) {
+  for (let index = 0; index < rows.length; index += 1) {
+    const row = rows[index];
     const account = {
       name: String(row[0] || '').trim(),
       id: String(row[1] || '').trim(),
       email: String(row[2] || '').trim().toLowerCase(),
-      password: String(row[3] || '')
+      password: String(row[3] || ''),
+      rowIndex: index + 2
     };
 
     if (account.email === email) {
