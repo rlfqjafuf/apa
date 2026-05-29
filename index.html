@@ -2462,8 +2462,17 @@
                 return '질문: ' + query + '\n\n해결 방법을 먼저 정리해 보세요. 핵심 단어를 나누고, 관련 개념을 확인한 뒤, 작은 단계부터 검증하면 답에 가까워질 수 있습니다.';
             }
 
-            async function fetchGptResponse(query) {
-                const response = await fetch('/api/search', {
+            function getSearchApiUrls() {
+                const urls = [];
+                if (location.protocol === 'http:' || location.protocol === 'https:') {
+                    urls.push('/api/search');
+                }
+                urls.push('http://127.0.0.1:4184/api/search');
+                return [...new Set(urls)];
+            }
+
+            async function requestSearchHint(apiUrl, query) {
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -2480,6 +2489,20 @@
                 }
 
                 return data.answer || '힌트를 생성하지 못했습니다.';
+            }
+
+            async function fetchGptResponse(query) {
+                let lastError = null;
+
+                for (const apiUrl of getSearchApiUrls()) {
+                    try {
+                        return await requestSearchHint(apiUrl, query);
+                    } catch (error) {
+                        lastError = error;
+                    }
+                }
+
+                throw lastError || new Error('GPT API 힌트를 가져오지 못했습니다.');
             }
 
             // Input submit event

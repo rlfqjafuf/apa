@@ -111,6 +111,16 @@ function setBaseHeaders(res) {
 function setCorsHeaders(req, res) {
     const allowedOrigin = process.env.ALLOWED_ORIGIN || '';
     const requestOrigin = req.headers.origin || '';
+    const isLocalDev = (process.env.NODE_ENV || 'development') !== 'production';
+
+    if (!allowedOrigin && isLocalDev) {
+        if (requestOrigin === 'null' || /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(requestOrigin)) {
+            res.setHeader('Access-Control-Allow-Origin', requestOrigin);
+            res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+            res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+        }
+        return;
+    }
 
     if (!allowedOrigin) return;
 
