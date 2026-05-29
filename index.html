@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexis | 프리미엄 인증 & 대시보드 시스템</title>
-    <meta name="description" content="안전하고 미려한 차세대 웹 인증 및 유저 관리 대시보드 시스템">
+    <title>Nexis | 인증 및 대시보드 시스템</title>
+    <meta name="description" content="안전한 계정 인증, AI 힌트 검색, 기록 관리 대시보드">
     
     <!-- Google Fonts (Outfit & Inter) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1358,47 +1358,33 @@
 
     <!-- Core App Container -->
     <div class="app-wrapper">
-
-        <!-- 1. Authentication Component (Login & Sign-Up) -->
         <div class="auth-card-wrapper" id="authCardWrapper">
             <div class="glass-card">
                 <div class="auth-viewport">
                     <div class="auth-slider" id="authSlider">
-                        
-                        <!-- SCREEN A: LOGIN -->
                         <section class="auth-screen" id="loginScreen" aria-labelledby="loginTitle">
                             <div class="brand-header">
                                 <div class="logo-icon">N</div>
                                 <span class="brand-name">Nexis OS</span>
                             </div>
-                            
                             <h2 id="loginTitle">로그인</h2>
                             <p class="subtitle">넥시스 포털에 오신 것을 환영합니다. <a href="#" id="toSignUp">새 계정 만들기</a></p>
-                            
                             <form id="loginForm" autocomplete="on">
                                 <div class="form-group">
                                     <label class="input-label" for="loginEmail">이메일 주소</label>
                                     <div class="input-wrapper">
-                                        <div class="input-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12s-3-7-10-7-10 7-10 7 3 7 10 7 10-7 10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                                        </div>
+                                        <div class="input-icon"></div>
                                         <input type="email" id="loginEmail" class="form-input" placeholder="name@domain.com" required autocomplete="email">
                                     </div>
                                 </div>
-                                
                                 <div class="form-group">
                                     <label class="input-label" for="loginPassword">비밀번호</label>
                                     <div class="input-wrapper">
-                                        <div class="input-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                                        </div>
-                                        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required autocomplete="current-password">
-                                        <button type="button" class="password-toggle" id="loginPassToggle" aria-label="비밀번호 보이기">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                                        </button>
+                                        <div class="input-icon"></div>
+                                        <input type="password" id="loginPassword" class="form-input" placeholder="비밀번호" required autocomplete="current-password">
+                                        <button type="button" class="password-toggle" id="loginPassToggle" aria-label="비밀번호 보기"></button>
                                     </div>
                                 </div>
-                                
                                 <div class="form-options">
                                     <label class="checkbox-container">
                                         <input type="checkbox" id="rememberMe" checked>
@@ -1407,107 +1393,65 @@
                                     </label>
                                     <a href="#" class="forgot-password" id="forgotPassLink">비밀번호 찾기</a>
                                 </div>
-                                
-                                <button type="submit" class="btn-submit" id="loginBtn">
-                                    <span>로그인하기</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                                </button>
+                                <button type="submit" class="btn-submit" id="loginBtn"><span>로그인하기</span></button>
                             </form>
-                            
                             <div class="divider">간편 로그인</div>
-                            
                             <div class="social-grid">
-                                <button class="btn-social" type="button" aria-label="Google 로그인" onclick="handleSocialMock('Google')">
-                                    <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114-3.41 0-6.177-2.767-6.177-6.178 0-3.41 2.767-6.177 6.177-6.177 1.564 0 2.983.585 4.07 1.542l3.056-3.056C19.23 2.062 15.937 1 12.24 1 5.866 1 .7 6.166.7 12.54s5.166 11.54 11.54 11.54c6.643 0 11.026-4.664 11.026-11.233 0-.756-.068-1.332-.198-1.874H12.24Z"/></svg>
-                                </button>
-                                <button class="btn-social" type="button" aria-label="Github 로그인" onclick="handleSocialMock('Github')">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
-                                </button>
-                                <button class="btn-social" type="button" aria-label="Apple 로그인" onclick="handleSocialMock('Apple')">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-.96.04-2.13.64-2.82 1.45-.6.7-1.13 1.84-1 2.94 1.07.08 2.17-.52 2.83-1.33"/></svg>
-                                </button>
+                                <button class="btn-social" type="button" aria-label="Google 로그인" onclick="handleSocialMock('Google')">G</button>
+                                <button class="btn-social" type="button" aria-label="Github 로그인" onclick="handleSocialMock('Github')">GH</button>
+                                <button class="btn-social" type="button" aria-label="Apple 로그인" onclick="handleSocialMock('Apple')">A</button>
                             </div>
                         </section>
-                        
-                        <!-- SCREEN B: SIGN UP -->
+
                         <section class="auth-screen" id="signUpScreen" aria-labelledby="signUpTitle">
                             <div class="brand-header">
                                 <div class="logo-icon">N</div>
                                 <span class="brand-name">Nexis OS</span>
                             </div>
-                            
                             <h2 id="signUpTitle">회원가입</h2>
                             <p class="subtitle">간단한 정보만으로 계정을 생성하세요. <a href="#" id="toLogin">로그인 화면으로</a></p>
-                            
                             <form id="signUpForm" autocomplete="off">
                                 <div class="form-group">
                                     <label class="input-label" for="regName">이름</label>
                                     <div class="input-wrapper">
-                                        <div class="input-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                                        </div>
+                                        <div class="input-icon"></div>
                                         <input type="text" id="regName" class="form-input" placeholder="홍길동" required autocomplete="name">
                                     </div>
                                 </div>
-                                
                                 <div class="form-group">
                                     <label class="input-label" for="regEmail">이메일 주소</label>
                                     <div class="input-wrapper">
-                                        <div class="input-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12s-3-7-10-7-10 7-10 7 3 7 10 7 10-7 10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                                        </div>
+                                        <div class="input-icon"></div>
                                         <input type="email" id="regEmail" class="form-input" placeholder="name@domain.com" required autocomplete="email">
                                     </div>
                                 </div>
-                                
                                 <div class="form-group">
                                     <label class="input-label" for="regPassword">비밀번호</label>
                                     <div class="input-wrapper">
-                                        <div class="input-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                                        </div>
-                                        <input type="password" id="regPassword" class="form-input" placeholder="8자리 이상, 숫자 포함" required autocomplete="new-password">
-                                        <button type="button" class="password-toggle" id="regPassToggle" aria-label="비밀번호 보이기">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                                        </button>
+                                        <div class="input-icon"></div>
+                                        <input type="password" id="regPassword" class="form-input" placeholder="8자 이상, 숫자 포함" required autocomplete="new-password">
+                                        <button type="button" class="password-toggle" id="regPassToggle" aria-label="비밀번호 보기"></button>
                                     </div>
-                                    
-                                    <!-- Dynamic Strength Validation UI -->
                                     <div class="password-rules" id="passwordRules">
-                                        <div class="rule-item" id="ruleLen">
-                                            <span class="rule-icon"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg></span>
-                                            <span>최소 8자 이상</span>
-                                        </div>
-                                        <div class="rule-item" id="ruleNum">
-                                            <span class="rule-icon"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg></span>
-                                            <span>숫자 1개 이상 포함</span>
-                                        </div>
+                                        <div class="rule-item" id="ruleLen"><span class="rule-icon"></span><span>최소 8자 이상</span></div>
+                                        <div class="rule-item" id="ruleNum"><span class="rule-icon"></span><span>숫자 1개 이상 포함</span></div>
                                     </div>
                                 </div>
-                                
                                 <div class="form-group">
                                     <label class="input-label" for="regPasswordConfirm">비밀번호 확인</label>
                                     <div class="input-wrapper">
-                                        <div class="input-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                                        </div>
-                                        <input type="password" id="regPasswordConfirm" class="form-input" placeholder="비밀번호를 재입력하세요" required autocomplete="new-password">
+                                        <div class="input-icon"></div>
+                                        <input type="password" id="regPasswordConfirm" class="form-input" placeholder="비밀번호를 다시 입력하세요" required autocomplete="new-password">
                                     </div>
                                 </div>
-                                
-                                <button type="submit" class="btn-submit" id="signUpBtn" style="margin-top: 10px;">
-                                    <span>계정 만들기</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                                </button>
+                                <button type="submit" class="btn-submit" id="signUpBtn"><span>계정 만들기</span></button>
                             </form>
                         </section>
-                        
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 2. Interactive Premium Dashboard (Success Interface) -->
         <main class="dashboard-wrapper" id="dashboardWrapper" aria-labelledby="dbTitle">
             <header class="db-header">
                 <div class="db-user-profile">
@@ -1518,61 +1462,21 @@
                     </div>
                 </div>
                 <div style="display: flex; gap: 12px; align-items: center;">
-                    <a class="btn-history" href="history.html" aria-label="기록 페이지로 이동">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-                        <span>기록</span>
-                    </a>
-                    <button class="btn-ai-trigger" id="openAiChatBtn" aria-label="AI 비서와 대화하기">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                        <span>Nexis AI 비서</span>
-                    </button>
-                    <button class="btn-logout" id="logoutBtn" aria-label="로그아웃">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                        <span>로그아웃</span>
-                    </button>
+                    <a class="btn-history" href="history.html" aria-label="기록 페이지로 이동"><span>기록</span></a>
+                    <button class="btn-ai-trigger" id="openAiChatBtn" aria-label="AI 비서와 대화하기"><span>Nexis AI 비서</span></button>
+                    <button class="btn-logout" id="logoutBtn" aria-label="로그아웃"><span>로그아웃</span></button>
                 </div>
             </header>
-            
-            <div class="db-content">
-                <!-- Left panel: Account statistics and metrics -->
-                <section aria-labelledby="statsTitle">
-                    <h4 class="section-title" id="statsTitle">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
-                        시큐리티 매트릭스
-                    </h4>
-                    
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                            </div>
-                            <div class="stat-label">보안 상태</div>
-                            <div class="stat-value" style="color: var(--success)">안전 (Safe)</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                            </div>
-                            <div class="stat-label">최근 세션 생성</div>
-                            <div class="stat-value" id="dbSessionTime">방금 전</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                            </div>
-                            <div class="stat-label">등록 회원수</div>
-                            <div class="stat-value" id="dbTotalUsers">1명</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                            </div>
-                            <div class="stat-label">가입 일자</div>
-                            <div class="stat-value" id="dbJoinDate">2026-05-28</div>
-                        </div>
-                    </div>
 
-                    <!-- Profile Management panel -->
+            <div class="db-content">
+                <section aria-labelledby="statsTitle">
+                    <h4 class="section-title" id="statsTitle">시큐리티 매트릭스</h4>
+                    <div class="stats-grid">
+                        <div class="stat-card"><div class="stat-label">보안 상태</div><div class="stat-value" style="color: var(--success)">안전</div></div>
+                        <div class="stat-card"><div class="stat-label">최근 세션 생성</div><div class="stat-value" id="dbSessionTime">방금 전</div></div>
+                        <div class="stat-card"><div class="stat-label">등록 회원 수</div><div class="stat-value" id="dbTotalUsers">0명</div></div>
+                        <div class="stat-card"><div class="stat-label">가입 일자</div><div class="stat-value" id="dbJoinDate">-</div></div>
+                    </div>
                     <div class="profile-edit-card">
                         <h5 style="font-size: 15px; font-weight: 600; margin-bottom: 12px; color: #fff;">프로필 설정</h5>
                         <form id="profileUpdateForm">
@@ -1581,21 +1485,16 @@
                                 <input type="text" id="editName" class="form-input" style="padding-left: 16px;" required>
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
-                                <label class="input-label" for="editBio">소개 (Bio)</label>
-                                <textarea id="editBio" class="bio-textarea" placeholder="자신을 자유롭게 소개해 주세요."></textarea>
+                                <label class="input-label" for="editBio">소개</label>
+                                <textarea id="editBio" class="bio-textarea" placeholder="자기소개를 입력하세요"></textarea>
                             </div>
                             <button type="submit" class="btn-save">정보 저장하기</button>
                         </form>
                     </div>
                 </section>
 
-                <!-- Right panel: Activity logger -->
                 <aside aria-labelledby="activityTitle">
-                    <h4 class="section-title" id="activityTitle">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                        활동 로그
-                    </h4>
-                    
+                    <h4 class="section-title" id="activityTitle">활동 로그</h4>
                     <div class="activity-card">
                         <div class="activity-list" id="activityList">
                             <div class="activity-item">
@@ -1607,89 +1506,54 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="dependency-card" aria-labelledby="dependencyTitle">
                         <div class="dependency-header">
                             <div>
-                                <h4 class="section-title" id="dependencyTitle" style="margin-bottom: 8px;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.74V16h8v-1.26A7 7 0 0 0 12 2Z"/></svg>
-                                    AI 의존도
-                                </h4>
+                                <h4 class="section-title" id="dependencyTitle">AI 의존도</h4>
                                 <div class="dependency-score"><span id="aiDependencyScore">0</span>%</div>
                             </div>
                             <span class="dependency-level" id="aiDependencyLevel">낮음</span>
                         </div>
-                        <div class="dependency-meter" aria-hidden="true">
-                            <div class="dependency-meter-fill" id="aiDependencyMeter"></div>
-                        </div>
+                        <div class="dependency-meter" aria-hidden="true"><div class="dependency-meter-fill" id="aiDependencyMeter"></div></div>
                         <div class="dependency-grid">
-                            <div class="dependency-metric">
-                                <span>전체 검색</span>
-                                <strong id="aiTotalSearches">0</strong>
-                            </div>
-                            <div class="dependency-metric">
-                                <span>오늘 검색</span>
-                                <strong id="aiTodaySearches">0</strong>
-                            </div>
-                            <div class="dependency-metric">
-                                <span>반복 질문</span>
-                                <strong id="aiRepeatRate">0%</strong>
-                            </div>
+                            <div class="dependency-metric"><span>전체 검색</span><strong id="aiTotalSearches">0</strong></div>
+                            <div class="dependency-metric"><span>오늘 검색</span><strong id="aiTodaySearches">0</strong></div>
+                            <div class="dependency-metric"><span>반복 질문</span><strong id="aiRepeatRate">0%</strong></div>
                         </div>
-                        <p class="dependency-advice" id="aiDependencyAdvice">AI 검색 기록이 쌓이면 의존도 분석이 표시됩니다.</p>
+                        <p class="dependency-advice" id="aiDependencyAdvice">AI 검색 기록이 쌓이면 의존도 분석을 표시합니다.</p>
                     </div>
                 </aside>
             </div>
         </main>
 
-        <!-- 3. Dedicated Standalone AI Assistant Card -->
         <main class="ai-chat-wrapper" id="aiChatWrapper" aria-labelledby="aiChatTitle">
             <header class="db-header">
                 <div class="db-user-profile">
                     <div class="db-avatar" style="background: var(--accent-gradient);">AI</div>
                     <div class="db-user-details">
                         <h3 id="aiChatTitle">Nexis AI Assistant</h3>
-                        <p>마스터 계정 보안 및 플랫폼 비서</p>
+                        <p>정답 대신 해결 방법과 힌트를 알려주는 비서</p>
                     </div>
                 </div>
-                <button class="btn-back-to-db" id="backToDbBtn" aria-label="대시보드로 돌아가기">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-                    <span>대시보드 홈</span>
-                </button>
+                <button class="btn-back-to-db" id="backToDbBtn" aria-label="대시보드로 돌아가기"><span>대시보드</span></button>
             </header>
-            
             <div class="chat-container">
-                <!-- Chat History logs viewport -->
                 <div class="chat-messages" id="chatMessages"></div>
-                
-                <!-- Dynamic Suggestion Quick Prompt Chips -->
                 <div class="chat-suggestions">
-                    <button class="suggestion-pill" data-prompt="🔒 내 가입 정보 조회" aria-label="내 가입 정보 조회 질문 입력하기">
-                        <span>🔒 내 가입 정보 조회</span>
-                    </button>
-                    <button class="suggestion-pill" data-prompt="🛡️ 패스워드 보안 가이드" aria-label="패스워드 보안 가이드 질문 입력하기">
-                        <span>🛡️ 패스워드 보안 가이드</span>
-                    </button>
-                    <button class="suggestion-pill" data-prompt="💡 Nexis OS 핵심 스펙 소개" aria-label="Nexis OS 핵심 스펙 소개 질문 입력하기">
-                        <span>💡 Nexis OS 핵심 스펙 소개</span>
-                    </button>
+                    <button class="suggestion-pill" data-prompt="내 계정 정보 조회" aria-label="내 계정 정보 조회"><span>내 계정 정보 조회</span></button>
+                    <button class="suggestion-pill" data-prompt="비밀번호 보안 가이드" aria-label="비밀번호 보안 가이드"><span>비밀번호 보안 가이드</span></button>
+                    <button class="suggestion-pill" data-prompt="Nexis OS 기능 소개" aria-label="Nexis OS 기능 소개"><span>Nexis OS 기능 소개</span></button>
                 </div>
-                
-                <!-- Bottom Chat Entry panel -->
                 <div class="chat-input-container">
                     <form id="chatForm" autocomplete="off" class="chat-input-bar">
                         <input type="text" id="chatInput" class="chat-input" placeholder="Nexis AI 비서에게 질문하거나 정보를 검색하세요...">
-                        <button type="submit" class="btn-send" aria-label="질문 전송">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                        </button>
+                        <button type="submit" class="btn-send" aria-label="질문 전송">전송</button>
                     </form>
                 </div>
             </div>
         </main>
-
     </div>
 
-    <!-- Dynamic Toast Target Container -->
     <div class="toast-container" id="toastContainer"></div>
 
     <!-- --------------------------------------------------
@@ -1766,7 +1630,7 @@
                 toast.innerHTML = `
                     <span class="toast-icon">${iconSVG}</span>
                     <span class="toast-message">${message}</span>
-                    <button class="toast-close" aria-label="닫기">
+                    <button class="toast-close" aria-label="?リ린">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
                 `;
@@ -1794,12 +1658,12 @@
 
             // Mock OAuth
             window.handleSocialMock = function(provider) {
-                showToast(`${provider} 간편 로그인 연결을 수립하고 있습니다.`, 'info');
+                showToast(`${provider} 媛꾪렪 濡쒓렇???곌껐???섎┰?섍퀬 ?덉뒿?덈떎.`, 'info');
                 setTimeout(() => {
-                    showToast(`${provider} 인증 서버 통신 완료. 가상 로그인을 완료했습니다.`, 'success');
+                    showToast(`${provider} ?몄쬆 ?쒕쾭 ?듭떊 ?꾨즺. 媛??濡쒓렇?몄쓣 ?꾨즺?덉뒿?덈떎.`, 'success');
                     
                     const mockEmail = `oauth.${provider.toLowerCase()}@example.com`;
-                    const mockName = `${provider} 유저`;
+                    const mockName = `${provider} ?좎?`;
                     
                     // Register user if they don't exist
                     let users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
@@ -1812,7 +1676,7 @@
                             name: mockName,
                             password: 'OAUTH_MOCK_PASSWORD',
                             createdAt: now.toLocaleDateString(),
-                            bio: `${provider} 계정으로 로그인한 상태입니다.`
+                            bio: `${provider} 怨꾩젙?쇰줈 濡쒓렇?명븳 ?곹깭?낅땲??`
                         };
                         users.push(existingUser);
                         localStorage.setItem('nexis_users', JSON.stringify(users));
@@ -1833,18 +1697,18 @@
 
                 const email = document.getElementById('loginEmail').value.trim();
                 if (!email) {
-                    showToast('비밀번호 재설정 메일을 받을 이메일을 먼저 입력해 주세요.', 'info');
+                    showToast('鍮꾨?踰덊샇 ?ъ꽕??硫붿씪??諛쏆쓣 ?대찓?쇱쓣 癒쇱? ?낅젰??二쇱꽭??', 'info');
                     return;
                 }
 
                 try {
                     if (!firebaseClient) await setupFirebaseClient();
                     await firebaseClient.sendPasswordReset(email);
-                    showToast('비밀번호 재설정 메일을 보냈습니다.', 'success');
+                    showToast('鍮꾨?踰덊샇 ?ъ꽕??硫붿씪??蹂대깉?듬땲??', 'success');
                 } catch (error) {
                     const message = error.code === 'auth/user-not-found'
-                        ? '가입된 계정을 찾을 수 없습니다.'
-                        : error.message || '비밀번호 재설정 메일 발송 중 오류가 발생했습니다.';
+                        ? '媛?낅맂 怨꾩젙??李얠쓣 ???놁뒿?덈떎.'
+                        : error.message || '鍮꾨?踰덊샇 ?ъ꽕??硫붿씪 諛쒖넚 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.';
                     showToast(message, 'error');
                 }
             }, true);
@@ -1852,7 +1716,7 @@
             // Forgot password mock
             forgotPassLink.addEventListener('click', (e) => {
                 e.preventDefault();
-                showToast('비밀번호 초기화 링크가 등록된 이메일로 전송되었습니다. (가상 메일)', 'info');
+                showToast('鍮꾨?踰덊샇 珥덇린??留곹겕媛 ?깅줉???대찓?쇰줈 ?꾩넚?섏뿀?듬땲?? (媛??硫붿씪)', 'info');
             });
 
             // --- Toggle Slider Navigation ---
@@ -1916,6 +1780,7 @@
                     || message.includes('CONFIGURATION_NOT_FOUND');
             }
 
+            // Firebase Auth signup path. The capture listener runs before the old localStorage fallback.
             signUpForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 e.stopImmediatePropagation();
@@ -1926,41 +1791,42 @@
                 const confirmPassword = regPasswordConfirm.value;
 
                 if (password.length < 8) {
-                    showToast('비밀번호는 최소 8자 이상이어야 합니다.', 'error');
+                    showToast('鍮꾨?踰덊샇??理쒖냼 8???댁긽?댁뼱???⑸땲??', 'error');
                     return;
                 }
 
                 if (!/\d/.test(password)) {
-                    showToast('비밀번호에는 숫자가 최소 1개 포함되어야 합니다.', 'error');
+                    showToast('鍮꾨?踰덊샇?먮뒗 ?レ옄媛 理쒖냼 1媛??ы븿?섏뼱???⑸땲??', 'error');
                     return;
                 }
 
                 if (password !== confirmPassword) {
-                    showToast('입력한 비밀번호가 일치하지 않습니다.', 'error');
+                    showToast('?낅젰??鍮꾨?踰덊샇媛 ?쇱튂?섏? ?딆뒿?덈떎.', 'error');
                     return;
                 }
 
                 try {
                     if (!firebaseClient) await setupFirebaseClient();
                     const newUser = await firebaseClient.registerUser({ name, email, password });
-                    showToast('회원가입이 완료되었습니다.', 'success');
+                    showToast('?뚯썝媛?낆씠 ?꾨즺?섏뿀?듬땲??', 'success');
                     signUpForm.reset();
                     passwordRules.style.display = 'none';
                     createSession(newUser);
                 } catch (error) {
                     if (isFirebaseAuthSetupError(error)) {
-                        showToast('Firebase Authentication에서 이메일/비밀번호 로그인을 먼저 활성화해 주세요.', 'error');
+                        showToast('Firebase Authentication?먯꽌 ?대찓??鍮꾨?踰덊샇 濡쒓렇?몄쓣 癒쇱? ?쒖꽦?뷀빐 二쇱꽭??', 'error');
                         return;
                     }
                     const message = error.code === 'auth/email-already-in-use'
-                        ? '이미 등록된 이메일 주소입니다.'
+                        ? '?대? ?깅줉???대찓??二쇱냼?낅땲??'
                         : error.code === 'auth/operation-not-allowed'
-                        ? 'Firebase 콘솔에서 이메일/비밀번호 로그인을 활성화해 주세요.'
-                        : error.message || '회원가입 중 오류가 발생했습니다.';
+                        ? 'Firebase 肄섏넄?먯꽌 ?대찓??鍮꾨?踰덊샇 濡쒓렇?몄쓣 ?쒖꽦?뷀빐 二쇱꽭??'
+                        : error.message || '?뚯썝媛??以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.';
                     showToast(message, 'error');
                 }
             }, true);
 
+            // Firebase Auth login path. Local fallback remains below for development without Firebase.
             loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 e.stopImmediatePropagation();
@@ -1971,16 +1837,16 @@
                 try {
                     if (!firebaseClient) await setupFirebaseClient();
                     const targetUser = await firebaseClient.loginUser({ email, password });
-                    showToast(`${targetUser.name}님, 환영합니다.`, 'success');
+                    showToast(`${targetUser.name}?? ?섏쁺?⑸땲??`, 'success');
                     createSession(targetUser);
                 } catch (error) {
                     if (isFirebaseAuthSetupError(error)) {
-                        showToast('Firebase Authentication에서 이메일/비밀번호 로그인을 먼저 활성화해 주세요.', 'error');
+                        showToast('Firebase Authentication?먯꽌 ?대찓??鍮꾨?踰덊샇 濡쒓렇?몄쓣 癒쇱? ?쒖꽦?뷀빐 二쇱꽭??', 'error');
                         return;
                     }
                     const message = error.code === 'auth/invalid-credential'
-                        ? '이메일 또는 비밀번호가 일치하지 않습니다.'
-                        : error.message || '로그인 중 오류가 발생했습니다.';
+                        ? '?대찓???먮뒗 鍮꾨?踰덊샇媛 ?쇱튂?섏? ?딆뒿?덈떎.'
+                        : error.message || '濡쒓렇??以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.';
                     showToast(message, 'error');
                 }
             }, true);
@@ -1998,17 +1864,17 @@
                 
                 // Form validations
                 if (password.length < 8) {
-                    showToast('비밀번호는 최소 8자 이상이어야 합니다.', 'error');
+                    showToast('鍮꾨?踰덊샇??理쒖냼 8???댁긽?댁뼱???⑸땲??', 'error');
                     return;
                 }
                 
                 if (!/\d/.test(password)) {
-                    showToast('비밀번호는 최소 1개 이상의 숫자를 포함해야 합니다.', 'error');
+                    showToast('鍮꾨?踰덊샇??理쒖냼 1媛??댁긽???レ옄瑜??ы븿?댁빞 ?⑸땲??', 'error');
                     return;
                 }
                 
                 if (password !== confirmPassword) {
-                    showToast('입력한 비밀번호가 일치하지 않습니다.', 'error');
+                    showToast('?낅젰??鍮꾨?踰덊샇媛 ?쇱튂?섏? ?딆뒿?덈떎.', 'error');
                     return;
                 }
                 
@@ -2017,7 +1883,7 @@
                 // Check if user already exists
                 const userExists = users.some(u => u.email.toLowerCase() === email.toLowerCase());
                 if (userExists) {
-                    showToast('이미 등록된 이메일 주소입니다.', 'warning');
+                    showToast('?대? ?깅줉???대찓??二쇱냼?낅땲??', 'warning');
                     return;
                 }
                 
@@ -2034,7 +1900,7 @@
                 users.push(newUser);
                 localStorage.setItem('nexis_users', JSON.stringify(users));
                 
-                showToast('회원가입이 완료되었습니다! 로그인해 주세요.', 'success');
+                showToast('?뚯썝媛?낆씠 ?꾨즺?섏뿀?듬땲?? 濡쒓렇?명빐 二쇱꽭??', 'success');
                 signUpForm.reset();
                 passwordRules.style.display = 'none';
                 
@@ -2053,11 +1919,11 @@
                 const targetUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
                 
                 if (!targetUser || targetUser.password !== password) {
-                    showToast('이메일 혹은 비밀번호가 일치하지 않습니다.', 'error');
+                    showToast('?대찓???뱀? 鍮꾨?踰덊샇媛 ?쇱튂?섏? ?딆뒿?덈떎.', 'error');
                     return;
                 }
                 
-                showToast(`${targetUser.name}님, 환영합니다!`, 'success');
+                showToast(`${targetUser.name}?? ?섏쁺?⑸땲??`, 'success');
                 
                 // Handle Session
                 createSession(targetUser);
@@ -2117,14 +1983,14 @@
                 }
                 
                 // Track dynamic activity
-                logActivity('보안 세션 토큰 발행 완료');
+                logActivity('보안 세션 토큰 발급 완료');
                 logActivity('메인 대시보드 콘솔 진입');
 
                 renderAiDependency();
 
                 // Reset AI Chat to initial greeting dynamically
                 chatMessages.innerHTML = '';
-                addAiBubble(`안녕하세요, ${user.name}님! Nexis AI Assistant입니다. 무엇을 도와드릴까요?\n\n아래 추천 질문을 클릭하거나 궁금한 점을 하단 검색창에 입력해 보세요.`, false);
+                addAiBubble('안녕하세요, ' + user.name + '님. Nexis AI Assistant입니다. 궁금한 내용을 입력하면 정답 대신 해결 방법과 힌트를 알려드릴게요.', false);
 
                 // Reset screens displays
                 aiChatWrapper.style.display = 'none';
@@ -2164,6 +2030,7 @@
                 }
             }
 
+            // Imports the Firebase wrapper only after the page has loaded.
             async function setupFirebaseClient() {
                 try {
                     firebaseClient = await import('./firebase-client.js');
@@ -2184,6 +2051,7 @@
                 }
             }
 
+            // Saves a local copy immediately, then mirrors the same search record to Firestore.
             async function saveSearchHistory(question, answer) {
                 const now = new Date();
                 const activeSession = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
@@ -2214,6 +2082,7 @@
                 renderAiDependency();
             }
 
+            // Reads Firestore records for the signed-in user and falls back to localStorage.
             async function readSearchHistoryForCurrentUser() {
                 const activeSession = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
                 const activeUser = activeSession ? JSON.parse(activeSession) : {};
@@ -2248,20 +2117,20 @@
                 const repeatScore = Math.min(30, repeatRate * 0.3);
                 const score = Math.min(100, Math.round(volumeScore + todayScore + repeatScore));
 
-                let level = '낮음';
+                let level = '??쓬';
                 let levelClass = '';
-                let advice = '균형적으로 사용 중입니다. 중요한 판단은 직접 검토하는 습관을 유지하세요.';
+                let advice = '洹좏삎?곸쑝濡??ъ슜 以묒엯?덈떎. 以묒슂???먮떒? 吏곸젒 寃?좏븯???듦????좎??섏꽭??';
 
                 if (score >= 70) {
-                    level = '높음';
+                    level = '?믪쓬';
                     levelClass = 'high';
-                    advice = 'AI 사용 빈도가 높습니다. 답변을 그대로 적용하기보다 근거 확인과 직접 정리를 함께 해보세요.';
+                    advice = 'AI ?ъ슜 鍮덈룄媛 ?믪뒿?덈떎. ?듬???洹몃?濡??곸슜?섍린蹂대떎 洹쇨굅 ?뺤씤怨?吏곸젒 ?뺣━瑜??④퍡 ?대낫?몄슂.';
                 } else if (score >= 40) {
-                    level = '주의';
+                    level = '二쇱쓽';
                     levelClass = 'medium';
-                    advice = 'AI 도움을 자주 받고 있습니다. 반복 질문은 메모로 정리하면 의존도를 낮추는 데 도움이 됩니다.';
+                    advice = 'AI ?꾩????먯＜ 諛쏄퀬 ?덉뒿?덈떎. 諛섎났 吏덈Ц? 硫붾え濡??뺣━?섎㈃ ?섏〈?꾨? ??텛?????꾩????⑸땲??';
                 } else if (!records.length) {
-                    advice = 'AI 검색 기록이 쌓이면 의존도 분석이 표시됩니다.';
+                    advice = 'AI 寃??湲곕줉???볦씠硫??섏〈??遺꾩꽍???쒖떆?⑸땲??';
                 }
 
                 return {
@@ -2290,6 +2159,7 @@
             }
 
             // --- Profile Update Form ---
+            // Saves profile edits to Firestore before the legacy localStorage handler can run.
             profileUpdateForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 e.stopImmediatePropagation();
@@ -2301,7 +2171,7 @@
 
                 const sessionObj = JSON.parse(sessionData);
                 if (!sessionObj.uid) {
-                    showToast('Firebase 계정 세션을 찾을 수 없습니다. 다시 로그인해 주세요.', 'error');
+                    showToast('Firebase 怨꾩젙 ?몄뀡??李얠쓣 ???놁뒿?덈떎. ?ㅼ떆 濡쒓렇?명빐 二쇱꽭??', 'error');
                     return;
                 }
 
@@ -2323,10 +2193,10 @@
                     dbUserName.textContent = updatedProfile.name;
                     dbUserAvatar.textContent = updatedProfile.name.charAt(0);
 
-                    logActivity(`프로필 업데이트: ${updatedProfile.name}`);
-                    showToast('프로필 정보가 저장되었습니다.', 'success');
+                    logActivity(`?꾨줈???낅뜲?댄듃: ${updatedProfile.name}`);
+                    showToast('?꾨줈???뺣낫媛 ??λ릺?덉뒿?덈떎.', 'success');
                 } catch (error) {
-                    showToast(error.message || '프로필 저장 중 오류가 발생했습니다.', 'error');
+                    showToast(error.message || '?꾨줈?????以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.', 'error');
                 }
             }, true);
 
@@ -2362,12 +2232,13 @@
                     dbUserName.textContent = updatedName;
                     dbUserAvatar.textContent = updatedName.charAt(0);
                     
-                    logActivity(`프로필 정보 업데이트: ${updatedName}`);
-                    showToast('프로필 정보가 저장되었습니다.', 'success');
+                    logActivity(`?꾨줈???뺣낫 ?낅뜲?댄듃: ${updatedName}`);
+                    showToast('?꾨줈???뺣낫媛 ??λ릺?덉뒿?덈떎.', 'success');
                 }
             });
 
             // --- Logout Event Process ---
+            // Signs out from Firebase Auth and clears the local UI session.
             logoutBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopImmediatePropagation();
@@ -2382,7 +2253,7 @@
                 sessionStorage.removeItem('nexis_session');
                 localStorage.removeItem('nexis_session');
 
-                showToast('로그아웃되었습니다.', 'info');
+                showToast('濡쒓렇?꾩썐?섏뿀?듬땲??', 'info');
 
                 dashboardWrapper.className = 'dashboard-wrapper';
                 dashboardWrapper.style.display = 'none';
@@ -2398,7 +2269,7 @@
                 sessionStorage.removeItem('nexis_session');
                 localStorage.removeItem('nexis_session');
                 
-                showToast('로그아웃되었습니다. 안전하게 세션을 종료했습니다.', 'info');
+                showToast('濡쒓렇?꾩썐?섏뿀?듬땲?? ?덉쟾?섍쾶 ?몄뀡??醫낅즺?덉뒿?덈떎.', 'info');
                 
                 // Hide dashboard and chat views
                 dashboardWrapper.className = 'dashboard-wrapper';
@@ -2427,7 +2298,7 @@
                     
                     if (matchedUser) {
                         renderDashboard(matchedUser);
-                        showToast(`${matchedUser.name}님, 자동 로그인되었습니다.`, 'success');
+                        showToast(`${matchedUser.name}?? ?먮룞 濡쒓렇?몃릺?덉뒿?덈떎.`, 'success');
                     } else {
                         // Cleanup broken references
                         sessionStorage.removeItem('nexis_session');
@@ -2563,47 +2434,26 @@
                 });
             }
 
-            // Keyword processing simulation engine
+            // Local fallback used only when the backend GPT API cannot answer.
             function generateAiResponse(query) {
-                const q = query.toLowerCase().trim();
-                
-                let sessionData = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
+                const sessionData = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
                 const userObj = sessionData ? JSON.parse(sessionData) : { name: '사용자', email: 'N/A' };
                 const usersList = JSON.parse(localStorage.getItem('nexis_users') || '[]');
-                
-                // 1. User Account details
-                if (q.includes('내 정보') || q.includes('가입 정보') || q.includes('이메일') || q.includes('가입일')) {
-                    return `현재 로그인 중인 계정의 마스터 정보입니다.\n\n• 마스터 성함: ${userObj.name}님\n• 등록 이메일: ${userObj.email}\n• 보안 액세스 레벨: Standard Member\n• 최근 로그인 일시: ${dbSessionTime.textContent}\n\n다른 시스템 변경 사항이 필요하시면 대시보드 홈 화면의 '프로필 설정'을 통해 상시 업데이트가 가능합니다.`;
+                const normalizedQuery = query.toLowerCase().trim();
+
+                if (normalizedQuery.includes('계정') || normalizedQuery.includes('이메일') || normalizedQuery.includes('가입')) {
+                    return '현재 로그인 계정은 ' + userObj.name + ' / ' + userObj.email + ' 입니다. 계정 정보는 Firebase Auth에 저장되고, 프로필 정보는 Firestore users/{uid} 문서에 저장됩니다.';
                 }
-                
-                // 2. Security tips
-                if (q.includes('보안') || q.includes('안전') || q.includes('비밀번호') || q.includes('패스워드') || q.includes('가이드')) {
-                    return `Nexis OS 보안 등급 가이드라인:\n\n1. 패스워드는 최소 8자 이상, 대소문자와 숫자를 최소 1개 이상 결합할 것을 적극 권장합니다.\n2. 현재 보안 매트릭스 측정 결과: '안전(Safe)' 상태로 유지되고 있습니다.\n3. 무단 브라우징 탈취를 예방하기 위해 세션 유지가 불필요한 경우 항시 '로그아웃' 버튼을 클릭하여 로컬 저장 세션 토큰을 삭제해 주시기 바랍니다.`;
+
+                if (normalizedQuery.includes('보안') || normalizedQuery.includes('비밀번호')) {
+                    return '비밀번호는 최소 8자 이상과 숫자를 포함하는 방식이 좋습니다. Firebase Auth가 비밀번호를 직접 관리하므로 앱은 원문 비밀번호를 저장하지 않습니다.';
                 }
-                
-                // 3. Platform Spec
-                if (q.includes('소개') || q.includes('기능') || q.includes('스펙') || q.includes('nexis') || q.includes('넥시스')) {
-                    return `Nexis OS 인증 및 검색 플랫폼 핵심 사양 안내:\n\n• Core UI: HSL 테마 연동형 다크 모드 및 글래스모피즘(Glassmorphism)\n• 세션 엔진: LocalStorage 및 SessionStorage 다중 토큰 메커니즘\n• 실시간 알림: 커스텀 토스트 알림 컴포넌트 내장\n• 프롬프트 검색: 키워드 파싱 기반 Typewriter AI 시뮬레이터 적용\n\n지속적인 개발을 통해 더욱 역동적인 모바일 반응형 매트릭스와 위젯이 지속 업데이트될 예정입니다.`;
+
+                if (normalizedQuery.includes('회원') || normalizedQuery.includes('사용자')) {
+                    return '현재 로컬 fallback 사용자 수는 ' + usersList.length + '명입니다. Firebase가 활성화되면 대시보드는 Firestore users 컬렉션 기준으로 사용자 수를 읽습니다.';
                 }
-                
-                // 4. Time and Sessions
-                if (q.includes('시간') || q.includes('세션') || q.includes('로그인 시간')) {
-                    return `현재 생성된 활성 보안 세션 토큰 상세 정보입니다.\n\n• 세션 수립 시간: ${dbSessionTime.textContent}\n• 세션 갱신 대기: 무제한 (로그인 상태 유지 설정 활성화 상태)\n• 현재 세션 생성 유형: 인증 폼 검증 통과`;
-                }
-                
-                // 5. Total counts
-                if (q.includes('회원') || q.includes('가입자') || q.includes('사용자 수')) {
-                    return `현재 로컬 데이터베이스에 등록된 넥시스 총 회원 수는 총 ${usersList.length}명입니다. 로컬 스토리지를 활용하여 보안 데이터가 안전하게 저장되어 있습니다.`;
-                }
-                
-                // Fallbacks
-                const fallbackAnswers = [
-                    `${userObj.name}님, 질문해 주셔서 감사합니다! Nexis AI 비서는 대화형으로 인증 시스템 제어 및 계정 보안 가이드를 돕는 전용 모델입니다. 혹시 "내 가입 정보 조회"나 "패스워드 보안 가이드"에 대해 알고 싶으신가요?`,
-                    `문의하신 "${query}"에 대한 최적의 보안 매트릭스를 분석하고 있습니다. 넥시스 환경은 프론트엔드 단독 환경으로 안전하게 캡슐화되어 있어, 어떠한 외부 유출 위험도 존재하지 않습니다. 추가적인 프로필 정보 조정이나 보안 레벨 문의가 있으시다면 언제든 말씀해 주세요.`,
-                    `인증 서버와의 원격 인터페이스를 시뮬레이션한 결과, 요청하신 사항은 시스템 상에서 정상 지원 가능 범주에 포함됩니다. 계정 이름 및 소개 수정은 '대시보드 홈' 화면의 '프로필 설정'에서 간편하게 처리 가능하오니 참고해 주시기 바랍니다.`
-                ];
-                
-                return fallbackAnswers[Math.floor(Math.random() * fallbackAnswers.length)];
+
+                return '질문: ' + query + '\n\n해결 방법을 먼저 정리해 보세요. 핵심 단어를 나누고, 관련 개념을 확인한 뒤, 작은 단계부터 검증하면 답에 가까워질 수 있습니다.';
             }
 
             async function fetchGptResponse(query) {
@@ -2657,7 +2507,7 @@
             // Suggestion pills click handlers
             suggestionPills.forEach(pill => {
                 pill.addEventListener('click', () => {
-                    const prompt = pill.getAttribute('data-prompt').replace(/[🔒🛡️💡]\s*/g, '');
+                    const prompt = pill.getAttribute('data-prompt').replace(/^\s*[-?]\s*/, '');
                     chatInput.value = prompt;
                     chatForm.dispatchEvent(new Event('submit'));
                 });

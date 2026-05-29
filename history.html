@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -442,85 +442,79 @@
     </style>
 </head>
 <body>
-    <div class="page">
+    <main class="history-shell">
         <header class="topbar">
             <div class="brand">
                 <div class="logo">N</div>
                 <div>
-                    <div class="brand-title">Nexis</div>
+                    <div class="brand-name">Nexis</div>
                     <div class="brand-subtitle">AI 검색 기록</div>
                 </div>
             </div>
-            <div class="actions">
-                <a class="btn" href="index.html" aria-label="대시보드로 돌아가기">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
-                    대시보드
-                </a>
-                <button class="btn" id="exportBtn" type="button" aria-label="CSV로 내보내기">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-                    CSV
-                </button>
-                <button class="btn btn-danger" id="clearBtn" type="button" aria-label="기록 삭제">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>
-                    삭제
-                </button>
-            </div>
+            <nav class="top-actions" aria-label="기록 작업">
+                <a class="btn" href="index.html">대시보드</a>
+                <button class="btn" id="exportBtn" type="button" aria-label="CSV로 내보내기">CSV</button>
+                <button class="btn btn-danger" id="clearBtn" type="button" aria-label="기록 삭제">삭제</button>
+            </nav>
         </header>
 
         <section class="hero" aria-labelledby="historyTitle">
-            <div class="summary">
+            <div>
                 <h1 id="historyTitle">검색 기록</h1>
-                <p class="summary-copy">Nexis AI 비서에게 사용자가 무엇을 검색했는지, 그리고 어떤 풀이 방법과 힌트를 받았는지 시간순으로 확인합니다. 최근 100개의 질문과 힌트가 브라우저에 저장됩니다.</p>
-                <div class="stats" aria-label="검색 기록 요약">
-                    <div class="stat">
-                        <div class="stat-label">전체 검색</div>
-                        <div class="stat-value" id="totalCount">0</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-label">오늘 검색</div>
-                        <div class="stat-value" id="todayCount">0</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-label">등록 계정</div>
-                        <div class="stat-value" id="userCount">0</div>
-                    </div>
+                <p class="summary-copy">사용자가 무엇을 검색했고 어떤 힌트를 받았는지 시간순으로 확인합니다.</p>
+            </div>
+            <div class="stats" aria-label="검색 기록 요약">
+                <div class="stat">
+                    <div class="stat-label">전체 검색</div>
+                    <div class="stat-value" id="totalCount">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">오늘 검색</div>
+                    <div class="stat-value" id="todayCount">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">AI 의존도</div>
+                    <div class="stat-value" id="userCount">0</div>
                 </div>
             </div>
+        </section>
 
-            <aside class="profile" aria-label="현재 계정">
-                <div>
-                    <div class="avatar" id="profileAvatar">U</div>
-                    <div class="profile-name" id="profileName">게스트</div>
-                    <div class="profile-email" id="profileEmail">로그인 정보 없음</div>
-                </div>
-                <div class="profile-meta">
-                    <span id="lastLogin">최근 세션: 없음</span>
-                    <span id="storageMode">저장 위치: 브라우저</span>
-                </div>
-            </aside>
+        <section class="profile-card" aria-label="현재 계정">
+            <div class="profile-avatar" id="profileAvatar">U</div>
+            <div>
+                <div class="profile-name" id="profileName">게스트</div>
+                <div class="profile-email" id="profileEmail">로그인 정보 없음</div>
+            </div>
+            <div class="profile-meta">
+                <span id="lastLogin">최근 세션: 없음</span>
+                <span id="storageMode">저장 위치: 브라우저</span>
+            </div>
         </section>
 
         <section class="toolbar" aria-label="검색 기록 필터">
-            <label class="field">
-                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <label>
+                <span>검색</span>
                 <input class="control" id="searchInput" type="search" placeholder="질문 또는 힌트 검색">
             </label>
-            <select class="control" id="sortSelect" aria-label="정렬">
-                <option value="newest">최신순</option>
-                <option value="oldest">오래된순</option>
-            </select>
+            <label>
+                <span>정렬</span>
+                <select class="control" id="sortSelect">
+                    <option value="newest">최신순</option>
+                    <option value="oldest">오래된순</option>
+                </select>
+            </label>
         </section>
 
         <section class="history-panel" aria-labelledby="listTitle">
             <div class="panel-header">
                 <div>
                     <div class="panel-title" id="listTitle">질문과 힌트</div>
-                    <div class="panel-count" id="visibleCount">표시 중 0개</div>
+                    <div class="panel-subtitle" id="visibleCount">표시 중 0개</div>
                 </div>
             </div>
             <div class="history-list" id="historyList"></div>
         </section>
-    </div>
+    </main>
 
     <script>
         let firebaseClient = null;
@@ -637,7 +631,7 @@
             document.getElementById('profileAvatar').textContent = (session.name || 'U').charAt(0);
             document.getElementById('profileName').textContent = session.name || '사용자';
             document.getElementById('profileEmail').textContent = session.email || '이메일 없음';
-            document.getElementById('lastLogin').textContent = `최근 세션: ${session.loggedInAt || '확인 불가'}`;
+            document.getElementById('lastLogin').textContent = '최근 세션: ' + (session.loggedInAt || '확인 불가');
             document.getElementById('storageMode').textContent = localStorage.getItem('nexis_session') ? '저장 위치: localStorage' : '저장 위치: sessionStorage';
         }
 
@@ -662,13 +656,13 @@
                 return sort === 'oldest' ? left - right : right - left;
             });
 
-            visibleCount.textContent = `표시 중 ${rows.length}개`;
+            visibleCount.textContent = '표시 중 ' + rows.length + '개';
 
             if (!rows.length) {
                 historyList.innerHTML = `
                     <div class="empty">
                         <strong>검색 기록이 없습니다</strong>
-                        <span>Nexis AI 비서에게 질문하면 이곳에 검색어와 힌트가 함께 저장됩니다.</span>
+                        <span>Nexis AI에게 질문하면 검색어와 힌트가 여기에 저장됩니다.</span>
                     </div>
                 `;
                 return;
@@ -682,7 +676,7 @@
                     <div>
                         <div class="question">Q. ${escapeHtml(item.question)}</div>
                         <div class="answer">Hint. ${escapeHtml(item.answer)}</div>
-                        <div class="meta">${escapeHtml(item.name)} · ${escapeHtml(item.email)}</div>
+                        <div class="meta">${escapeHtml(item.name)} 쨌 ${escapeHtml(item.email)}</div>
                     </div>
                     <time class="history-time" datetime="${escapeHtml(item.timestamp)}">${formatDate(item.timestamp)}</time>
                 </article>
@@ -717,6 +711,120 @@
                     console.warn('Firestore search history clear failed:', error);
                 }
             }
+            localStorage.removeItem('nexis_search_history');
+            renderHistory();
+        }
+
+        // Corrected history source reader. Firestore rules are uid-based, so uid is used first.
+        async function getSearchHistorySource() {
+            const session = getSession();
+            const uid = session?.uid || '';
+            const email = (session?.email || '').toLowerCase();
+
+            if (firebaseClient && firebaseClient.isFirebaseEnabled()) {
+                try {
+                    const remoteHistory = await firebaseClient.getSearchRecords({ uid, email });
+                    if (remoteHistory) return remoteHistory;
+                } catch (error) {
+                    console.warn('Firestore search history read failed:', error);
+                }
+            }
+
+            const localHistory = readJson('nexis_search_history', '[]').map((item, index) => ({
+                question: item.question || item.query || '寃?됱뼱 ?놁쓬',
+                answer: item.answer || '?뚰듃 湲곕줉 ?놁쓬',
+                name: item.name || 'Unknown',
+                email: item.email || 'N/A',
+                timestamp: item.timestamp || new Date().toISOString(),
+                index
+            }));
+
+            if (!email) return localHistory;
+            return localHistory.filter(item => (item.email || '').toLowerCase() === email);
+        }
+
+        // Corrected profile renderer for the current saved session.
+        function renderProfile() {
+            const session = getSession();
+            const users = readJson('nexis_users', '[]');
+            userCount.closest('.stat').querySelector('.stat-label').textContent = 'AI 의존도';
+            userCount.textContent = users.length;
+
+            if (!session) return;
+
+            document.getElementById('profileAvatar').textContent = (session.name || 'U').charAt(0);
+            document.getElementById('profileName').textContent = session.name || '사용자';
+            document.getElementById('profileEmail').textContent = session.email || '이메일 없음';
+            document.getElementById('lastLogin').textContent = '최근 세션: ' + (session.loggedInAt || '확인 불가');
+            document.getElementById('storageMode').textContent = localStorage.getItem('nexis_session')
+                ? '저장 위치: localStorage'
+                : '저장 위치: sessionStorage';
+        }
+
+        // Corrected history renderer with readable empty, count, and metadata text.
+        async function renderHistory() {
+            const query = searchInput.value.trim().toLowerCase();
+            const sort = sortSelect.value;
+            const allHistory = await getSearchHistorySource();
+            const todayKey = new Date().toDateString();
+
+            totalCount.textContent = allHistory.length;
+            todayCount.textContent = allHistory.filter(item => new Date(item.timestamp).toDateString() === todayKey).length;
+            userCount.textContent = `${calculateAiDependency(allHistory)}%`;
+
+            let rows = allHistory.filter(item => {
+                const haystack = `${item.question} ${item.answer} ${item.name} ${item.email}`.toLowerCase();
+                return haystack.includes(query);
+            });
+
+            rows.sort((a, b) => {
+                const left = new Date(a.timestamp).getTime();
+                const right = new Date(b.timestamp).getTime();
+                return sort === 'oldest' ? left - right : right - left;
+            });
+
+            visibleCount.textContent = '표시 중 ' + rows.length + '개';
+
+            if (!rows.length) {
+                historyList.innerHTML = `
+                    <div class="empty">
+                        <strong>검색 기록이 없습니다</strong>
+                        <span>Nexis AI에게 질문하면 검색어와 힌트가 여기에 저장됩니다.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            historyList.innerHTML = rows.map(item => `
+                <article class="history-row">
+                    <div class="record-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <div>
+                        <div class="question">Q. ${escapeHtml(item.question)}</div>
+                        <div class="answer">Hint. ${escapeHtml(item.answer)}</div>
+                        <div class="meta">${escapeHtml(item.name)} ? ${escapeHtml(item.email)}</div>
+                    </div>
+                    <time class="history-time" datetime="${escapeHtml(item.timestamp)}">${formatDate(item.timestamp)}</time>
+                </article>
+            `).join('');
+        }
+
+        // Corrected clear action. It deletes Firestore records for the uid and then clears local fallback data.
+        async function clearHistory() {
+            if (!confirm('紐⑤뱺 寃??湲곕줉????젣?좉퉴??')) return;
+            const session = getSession();
+            const uid = session?.uid || '';
+            const email = (session?.email || '').toLowerCase();
+
+            if (firebaseClient && firebaseClient.isFirebaseEnabled()) {
+                try {
+                    await firebaseClient.clearSearchRecords({ uid, email });
+                } catch (error) {
+                    console.warn('Firestore search history clear failed:', error);
+                }
+            }
+
             localStorage.removeItem('nexis_search_history');
             renderHistory();
         }

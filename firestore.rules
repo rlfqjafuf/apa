@@ -2,18 +2,22 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // True when a Firebase Auth user is logged in.
     function signedIn() {
       return request.auth != null;
     }
 
+    // True when the existing document belongs to the logged-in user.
     function ownsExistingDocument() {
       return signedIn() && resource.data.uid == request.auth.uid;
     }
 
+    // True when the new or updated document is being written for the logged-in user.
     function ownsIncomingDocument() {
       return signedIn() && request.resource.data.uid == request.auth.uid;
     }
 
+    // User profile metadata. Actual passwords and credentials are stored by Firebase Auth.
     match /users/{userId} {
       allow create: if signedIn()
         && request.auth.uid == userId
@@ -21,12 +25,14 @@ service cloud.firestore {
       allow read, update, delete: if signedIn() && request.auth.uid == userId;
     }
 
+    // Search history records are private to the user who created them.
     match /searchHistory/{document} {
       allow create: if ownsIncomingDocument();
       allow read, delete: if ownsExistingDocument();
       allow update: if ownsExistingDocument() && ownsIncomingDocument();
     }
 
+    // Account logs are append-only from the browser; users can read/delete their own logs.
     match /accountLogs/{document} {
       allow create: if ownsIncomingDocument();
       allow read, delete: if ownsExistingDocument();

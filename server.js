@@ -2,6 +2,8 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
+// Render and local development share this single Node server.
+// It serves the web files and exposes the backend API endpoints under /api.
 const root = __dirname;
 const MAX_JSON_BODY_BYTES = 64 * 1024;
 
@@ -37,6 +39,7 @@ const server = http.createServer(async (req, res) => {
             return;
         }
 
+        // Health check used by Render and local debugging.
         if (req.method === 'GET' && url.pathname === '/api/health') {
             sendJson(req, res, 200, {
                 ok: true,
@@ -49,11 +52,13 @@ const server = http.createServer(async (req, res) => {
             return;
         }
 
+        // Sends only public Firebase web config to the browser SDK.
         if (req.method === 'GET' && url.pathname === '/api/firebase-config') {
             sendJson(req, res, 200, getFirebaseConfig());
             return;
         }
 
+        // Keeps the OpenAI API key on the server and returns hint-style answers.
         if (req.method === 'POST' && url.pathname === '/api/search') {
             await handleSearch(req, res);
             return;
@@ -81,6 +86,7 @@ server.listen(port, host, () => {
     console.log(`Nexis backend: http://${displayHost}:${port}`);
 });
 
+// Loads .env during local development. Render injects these as environment variables.
 function loadEnvFile() {
     const envPath = path.join(root, '.env');
     if (!fs.existsSync(envPath)) return;
@@ -101,12 +107,14 @@ function loadEnvFile() {
     }
 }
 
+// Adds lightweight browser security headers to every response.
 function setBaseHeaders(res) {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 }
 
+// Optional CORS support for a separate frontend domain.
 function setCorsHeaders(req, res) {
     const allowedOrigin = process.env.ALLOWED_ORIGIN || '';
     const requestOrigin = req.headers.origin || '';
@@ -121,6 +129,7 @@ function setCorsHeaders(req, res) {
     }
 }
 
+// Serves index.html, history.html, and other frontend assets from this folder.
 function serveStatic(requestPath, req, res) {
     const normalizedPath = decodeURIComponent(requestPath === '/' ? '/index.html' : requestPath);
     const filePath = path.normalize(path.join(root, normalizedPath));
@@ -156,6 +165,7 @@ function serveStatic(requestPath, req, res) {
     });
 }
 
+// Builds the Firebase config object consumed by firebase-client.js.
 function getFirebaseConfig() {
     const config = {
         apiKey: process.env.FIREBASE_API_KEY || '',
@@ -181,6 +191,7 @@ function getFirebaseConfig() {
     };
 }
 
+// Calls OpenAI Responses API and asks it to provide hints instead of final answers.
 async function handleSearch(req, res) {
     if (!hasUsableOpenAiKey()) {
         sendJson(req, res, 500, {
@@ -271,11 +282,13 @@ async function handleSearch(req, res) {
     }
 }
 
+// Rejects placeholder keys so the app fails with a clear setup message.
 function hasUsableOpenAiKey() {
     const apiKey = process.env.OPENAI_API_KEY || '';
     return Boolean(apiKey && !apiKey.includes('your-api-key') && !apiKey.includes('sk-your'));
 }
 
+// Parses small JSON request bodies and rejects malformed or oversized payloads.
 function readJsonBody(req) {
     return new Promise((resolve, reject) => {
         let raw = '';
@@ -319,6 +332,7 @@ function readJsonBody(req) {
     });
 }
 
+// Supports both Responses API output_text and nested output content shapes.
 function extractResponseText(data) {
     if (typeof data.output_text === 'string' && data.output_text.trim()) {
         return data.output_text.trim();
@@ -336,6 +350,7 @@ function extractResponseText(data) {
     return chunks.join('\n').trim() || '힌트를 생성하지 못했습니다.';
 }
 
+// Sends one JSON response and applies optional CORS headers.
 function sendJson(req, res, status, payload) {
     setCorsHeaders(req, res);
     res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });

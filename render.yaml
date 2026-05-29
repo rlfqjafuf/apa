@@ -1,3 +1,5 @@
+# Render Blueprint for the Nexis backend web service.
+# It does not deploy by itself; Render uses it when you create/deploy a service.
 services:
   - type: web
     name: nexis-ai-search

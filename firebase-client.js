@@ -1,3 +1,5 @@
+// Firebase browser SDK wrapper.
+// The rest of the app imports this module instead of touching Firebase APIs directly.
 const SDK_VERSION = '12.7.0';
 
 let firebaseState = {
@@ -9,6 +11,7 @@ let firebaseState = {
     firestore: null
 };
 
+// Loads Firebase config from the local backend and initializes Auth + Firestore once.
 export async function initFirebaseClient() {
     if (firebaseState.app) return firebaseState;
 
@@ -39,19 +42,23 @@ export async function initFirebaseClient() {
     return firebaseState;
 }
 
+// Used by pages to decide whether remote Firestore storage is available.
 export function isFirebaseEnabled() {
     return firebaseState.enabled && Boolean(firebaseState.db);
 }
 
+// Returns the currently signed-in Firebase Auth user, if one exists.
 export function getCurrentUser() {
     return firebaseState.auth?.currentUser || null;
 }
 
+// Lets the UI react when Firebase Auth signs a user in or out.
 export function onAuthChange(callback) {
     if (!firebaseState.auth || !firebaseState.authSdk) return () => {};
     return firebaseState.authSdk.onAuthStateChanged(firebaseState.auth, callback);
 }
 
+// Creates the Firebase Auth account, then stores app profile metadata in Firestore.
 export async function registerUser({ name, email, password }) {
     await initFirebaseClient();
     assertFirebase();
@@ -82,6 +89,7 @@ export async function registerUser({ name, email, password }) {
     return profile;
 }
 
+// Signs the user in and refreshes their Firestore profile login timestamp.
 export async function loginUser({ email, password }) {
     await initFirebaseClient();
     assertFirebase();
@@ -111,18 +119,21 @@ export async function loginUser({ email, password }) {
     return profile;
 }
 
+// Ends the Firebase Auth session in the browser.
 export async function logoutUser() {
     await initFirebaseClient();
     if (!firebaseState.auth) return;
     await firebaseState.authSdk.signOut(firebaseState.auth);
 }
 
+// Sends Firebase's built-in password reset email.
 export async function sendPasswordReset(email) {
     await initFirebaseClient();
     assertFirebase();
     await firebaseState.authSdk.sendPasswordResetEmail(firebaseState.auth, email);
 }
 
+// Saves the user profile document at users/{uid}; Auth stores the actual account.
 export async function saveUserProfile(profile) {
     await initFirebaseClient();
     assertFirebase();
@@ -141,6 +152,7 @@ export async function saveUserProfile(profile) {
     return true;
 }
 
+// Updates display name and profile metadata for the logged-in user.
 export async function updateUserProfile({ uid, name, bio }) {
     await initFirebaseClient();
     assertFirebase();
@@ -172,6 +184,7 @@ export async function updateUserProfile({ uid, name, bio }) {
     return profile;
 }
 
+// Reads one user's profile metadata from Firestore.
 export async function getUserProfile(uid) {
     await initFirebaseClient();
     if (!isFirebaseEnabled() || !uid) return null;
@@ -181,6 +194,7 @@ export async function getUserProfile(uid) {
     return snapshot.exists() ? snapshot.data() : null;
 }
 
+// Counts profile documents for the dashboard. Firestore rules may restrict this later.
 export async function getUserCount() {
     await initFirebaseClient();
     if (!isFirebaseEnabled()) return 0;
@@ -190,6 +204,7 @@ export async function getUserCount() {
     return snapshot.size;
 }
 
+// Stores one search question and the hint/method answer shown to the user.
 export async function saveSearchRecord(record) {
     await initFirebaseClient();
     assertFirebase();
@@ -208,6 +223,7 @@ export async function saveSearchRecord(record) {
     return true;
 }
 
+// Stores an account activity event such as signup, login, or profile update.
 export async function saveAccountLog(record) {
     await initFirebaseClient();
     assertFirebase();
@@ -225,6 +241,7 @@ export async function saveAccountLog(record) {
     return true;
 }
 
+// Reads the latest search records for the current user or a supplied user context.
 export async function getSearchRecords(userContext = {}) {
     await initFirebaseClient();
     if (!isFirebaseEnabled()) return null;
@@ -249,6 +266,7 @@ export async function getSearchRecords(userContext = {}) {
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 }
 
+// Deletes the user's saved search records from Firestore.
 export async function clearSearchRecords(userContext = {}) {
     await initFirebaseClient();
     if (!isFirebaseEnabled()) return false;
@@ -272,6 +290,7 @@ export async function clearSearchRecords(userContext = {}) {
     return true;
 }
 
+// Normalizes older local records and Firestore records into one shape for the UI.
 function normalizeSearchRecord(data, id) {
     const createdAtDate = data.createdAt && typeof data.createdAt.toDate === 'function'
         ? data.createdAt.toDate()
@@ -288,6 +307,7 @@ function normalizeSearchRecord(data, id) {
     };
 }
 
+// Stops writes early when Firebase config is missing or failed to initialize.
 function assertFirebase() {
     if (!isFirebaseEnabled()) {
         throw new Error('Firebase가 설정되어 있지 않습니다. /api/firebase-config와 Firebase 환경 변수를 확인해 주세요.');
