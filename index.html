@@ -1358,7 +1358,7 @@
 
     <!-- Core App Container -->
     <div class="app-wrapper">
-        <div class="auth-card-wrapper" id="authCardWrapper">
+        <div class="auth-card-wrapper" id="authCardWrapper" style="display: none;">
             <div class="glass-card">
                 <div class="auth-viewport">
                     <div class="auth-slider" id="authSlider">
@@ -1464,7 +1464,7 @@
                 <div style="display: flex; gap: 12px; align-items: center;">
                     <a class="btn-history" href="history.html" aria-label="기록 페이지로 이동"><span>기록</span></a>
                     <button class="btn-ai-trigger" id="openAiChatBtn" aria-label="AI 비서와 대화하기"><span>Nexis AI 비서</span></button>
-                    <button class="btn-logout" id="logoutBtn" aria-label="로그아웃"><span>로그아웃</span></button>
+                    <button class="btn-logout" id="logoutBtn" aria-label="새 세션 시작"><span>새 세션</span></button>
                 </div>
             </header>
 
@@ -1500,7 +1500,7 @@
                             <div class="activity-item">
                                 <span class="activity-indicator green"></span>
                                 <div>
-                                    <p class="activity-desc">로그인 시스템 활성화 완료</p>
+                                    <p class="activity-desc">게스트 모드 활성화 완료</p>
                                     <p class="activity-time">현재 세션</p>
                                 </div>
                             </div>
@@ -1845,7 +1845,7 @@
                         return;
                     }
                     const message = error.code === 'auth/invalid-credential'
-                        ? '사용자 정보가 틀렸습니다.'
+                        ? '로그인 기능이 제거되었습니다.'
                         : error.message || '로그인 중 오류가 발생했습니다.';
                     showToast(message, 'error');
                 }
@@ -1934,8 +1934,8 @@
                 const now = new Date();
                 const session = {
                     uid: user.uid || '',
-                    email: user.email,
-                    name: user.name,
+                    email: user.email || 'guest@nexis.local',
+                    name: user.name || '게스트',
                     loggedInAt: now.toLocaleTimeString()
                 };
                 
@@ -1946,6 +1946,16 @@
                 
                 loginForm.reset();
                 renderDashboard(user);
+            }
+
+            function startGuestMode() {
+                createSession({
+                    uid: 'guest',
+                    email: 'guest@nexis.local',
+                    name: '게스트',
+                    createdAt: new Date().toLocaleDateString(),
+                    bio: ''
+                });
             }
 
             // Render Dashboard View
@@ -2045,60 +2055,10 @@
                     logoutUser: async () => true,
                     sendPasswordReset: async () => true,
                     registerUser: async ({ name, email, password }) => {
-                        const response = await fetch('/api/accounts/register', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                name,
-                                id: email.split('@')[0],
-                                email,
-                                password
-                            })
-                        });
-                        const data = await response.json().catch(() => ({}));
-                        if (!response.ok) {
-                            const error = new Error(data.error || `회원가입 요청이 실패했습니다. 상태 코드: ${response.status}`);
-                            if (response.status === 409) error.code = 'auth/email-already-in-use';
-                            throw error;
-                        }
-
-                        const user = {
-                            ...data.user,
-                            email,
-                            name,
-                            createdAt: data.user?.createdAt || new Date().toLocaleDateString(),
-                            bio: ''
-                        };
-
-                        const users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
-                        const filteredUsers = users.filter(item => item.email.toLowerCase() !== email.toLowerCase());
-                        filteredUsers.push(user);
-                        localStorage.setItem('nexis_users', JSON.stringify(filteredUsers));
-                        return user;
+                        throw new Error('로그인 기능이 제거되었습니다.');
                     },
                     loginUser: async ({ email, password }) => {
-                        const response = await fetch('/api/accounts/login', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ email, password })
-                        });
-                        const data = await response.json().catch(() => ({}));
-                        if (!response.ok) {
-                            const error = new Error(data.error || '사용자 정보가 틀렸습니다.');
-                            error.code = 'auth/invalid-credential';
-                            throw error;
-                        }
-
-                        const user = {
-                            ...data.user,
-                            bio: ''
-                        };
-
-                        const users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
-                        const filteredUsers = users.filter(item => item.email.toLowerCase() !== user.email.toLowerCase());
-                        filteredUsers.push(user);
-                        localStorage.setItem('nexis_users', JSON.stringify(filteredUsers));
-                        return user;
+                        throw new Error('로그인 기능이 제거되었습니다.');
                     },
                     updateUserProfile: async ({ uid, name, bio }) => {
                         const sessionData = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
@@ -2322,15 +2282,11 @@
                 sessionStorage.removeItem('nexis_session');
                 localStorage.removeItem('nexis_session');
 
-                showToast('濡쒓렇?꾩썐?섏뿀?듬땲??', 'info');
+                showToast('작업 세션을 새로 시작했습니다.', 'info');
 
-                dashboardWrapper.className = 'dashboard-wrapper';
-                dashboardWrapper.style.display = 'none';
                 aiChatWrapper.className = 'ai-chat-wrapper';
                 aiChatWrapper.style.display = 'none';
-
-                authCardWrapper.style.display = 'block';
-                authSlider.style.transform = 'translateX(0%)';
+                startGuestMode();
             }, true);
 
             logoutBtn.addEventListener('click', () => {
@@ -2511,15 +2467,15 @@
                 const normalizedQuery = query.toLowerCase().trim();
 
                 if (normalizedQuery.includes('계정') || normalizedQuery.includes('이메일') || normalizedQuery.includes('가입')) {
-                    return '현재 로그인 계정은 ' + userObj.name + ' / ' + userObj.email + ' 입니다. 계정 정보는 Firebase Auth에 저장되고, 프로필 정보는 Firestore users/{uid} 문서에 저장됩니다.';
+                    return '로그인 기능은 제거되었습니다. 현재는 게스트 모드로 AI 검색과 기록 기능을 사용할 수 있습니다.';
                 }
 
                 if (normalizedQuery.includes('보안') || normalizedQuery.includes('비밀번호')) {
-                    return '비밀번호는 최소 8자 이상과 숫자를 포함하는 방식이 좋습니다. Firebase Auth가 비밀번호를 직접 관리하므로 앱은 원문 비밀번호를 저장하지 않습니다.';
+                    return '로그인 기능이 제거되어 이 앱은 비밀번호를 저장하지 않습니다.';
                 }
 
                 if (normalizedQuery.includes('회원') || normalizedQuery.includes('사용자')) {
-                    return '현재 로컬 fallback 사용자 수는 ' + usersList.length + '명입니다. Firebase가 활성화되면 대시보드는 Firestore users 컬렉션 기준으로 사용자 수를 읽습니다.';
+                    return '현재 사용자는 게스트입니다. 저장되는 검색 기록은 이 브라우저의 localStorage에만 남습니다.';
                 }
 
                 return '질문: ' + query + '\n\n해결 방법을 먼저 정리해 보세요. 핵심 단어를 나누고, 관련 개념을 확인한 뒤, 작은 단계부터 검증하면 답에 가까워질 수 있습니다.';
@@ -2582,9 +2538,9 @@
                 });
             });
             
-            // Execute on startup
+            // Execute on startup without login.
             setupFirebaseClient();
-            checkAutoLogin();
+            startGuestMode();
         });
     </script>
 </body>

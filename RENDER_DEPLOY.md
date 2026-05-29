@@ -20,7 +20,6 @@ Set these in Render Dashboard > Environment:
 OPENAI_API_KEY=sk-...
 OPENAI_MODEL=gpt-4.1-mini
 OPENAI_TIMEOUT_MS=25000
-GOOGLE_SHEETS_SCRIPT_URL=https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec
 ```
 
 Optional:
@@ -35,9 +34,7 @@ Leave `ALLOWED_ORIGIN` empty when the frontend and backend are served from the s
 
 - `GET /api/health`: checks backend status without exposing secrets.
 - `POST /api/search`: sends a question to OpenAI and returns solving methods or hints instead of direct final answers.
-- `POST /api/accounts/register`: creates an account row through Google Apps Script.
-- `POST /api/accounts/login`: checks email/password against the Google Sheet.
 
 ## Local Data Storage
 
-Firebase has been removed. Account signup/login is handled through Google Apps Script and Google Sheets. Search history still uses browser `localStorage`.
+Firebase and login have been removed. Search history uses browser `localStorage`.

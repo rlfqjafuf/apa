@@ -57,18 +57,6 @@ const server = http.createServer(async (req, res) => {
             return;
         }
 
-        // Creates an account row in Google Sheets through Apps Script.
-        if (req.method === 'POST' && url.pathname === '/api/accounts/register') {
-            await handleAccountRegister(req, res);
-            return;
-        }
-
-        // Checks login credentials against Google Sheets through Apps Script.
-        if (req.method === 'POST' && url.pathname === '/api/accounts/login') {
-            await handleAccountLogin(req, res);
-            return;
-        }
-
         if (url.pathname.startsWith('/api/')) {
             sendJson(req, res, 404, { error: 'API 경로를 찾을 수 없습니다.' });
             return;
@@ -261,142 +249,10 @@ async function handleSearch(req, res) {
     }
 }
 
-// Registers an account in the linked Google Sheet.
-async function handleAccountRegister(req, res) {
-    const scriptUrl = process.env.GOOGLE_SHEETS_SCRIPT_URL || '';
-    if (!hasUsableGoogleScriptUrl(scriptUrl)) {
-        sendJson(req, res, 500, { error: 'GOOGLE_SHEETS_SCRIPT_URL이 설정되어 있지 않습니다.' });
-        return;
-    }
-
-    let body;
-    try {
-        body = await readJsonBody(req);
-    } catch (error) {
-        sendJson(req, res, 400, { error: error.message });
-        return;
-    }
-
-    const name = String(body.name || '').trim();
-    const email = String(body.email || '').trim().toLowerCase();
-    const password = String(body.password || '');
-    const id = String(body.id || email.split('@')[0] || '').trim();
-
-    if (!name || !email || !password) {
-        sendJson(req, res, 400, { error: '이름, 이메일, 비밀번호를 모두 입력해 주세요.' });
-        return;
-    }
-
-    try {
-        const result = await callGoogleSheetAuth(scriptUrl, {
-            action: 'register',
-            name,
-            id,
-            email,
-            password
-        });
-
-        if (!result.ok) {
-            const status = result.code === 'duplicate_email' ? 409 : 400;
-            sendJson(req, res, status, {
-                code: result.code || 'register_failed',
-                error: result.error || '구글시트가 계정 생성을 거부했습니다. Apps Script 응답을 확인해 주세요.'
-            });
-            return;
-        }
-
-        sendJson(req, res, 200, {
-            user: {
-                uid: `sheet-${email}`,
-                name,
-                id,
-                email,
-                createdAt: new Date().toLocaleDateString()
-            }
-        });
-    } catch (error) {
-        console.error('Google Sheets register failed:', error);
-        sendJson(req, res, 502, { error: '구글시트 계정 등록 서버와 통신하지 못했습니다.' });
-    }
-}
-
-// Logs in by comparing email and password with the linked Google Sheet rows.
-async function handleAccountLogin(req, res) {
-    const scriptUrl = process.env.GOOGLE_SHEETS_SCRIPT_URL || '';
-    if (!hasUsableGoogleScriptUrl(scriptUrl)) {
-        sendJson(req, res, 500, { error: 'GOOGLE_SHEETS_SCRIPT_URL이 설정되어 있지 않습니다.' });
-        return;
-    }
-
-    let body;
-    try {
-        body = await readJsonBody(req);
-    } catch (error) {
-        sendJson(req, res, 400, { error: error.message });
-        return;
-    }
-
-    const email = String(body.email || '').trim().toLowerCase();
-    const password = String(body.password || '');
-
-    if (!email || !password) {
-        sendJson(req, res, 400, { error: '이메일과 비밀번호를 입력해 주세요.' });
-        return;
-    }
-
-    try {
-        const result = await callGoogleSheetAuth(scriptUrl, {
-            action: 'login',
-            email,
-            password
-        });
-
-        if (!result.ok) {
-            sendJson(req, res, 401, { error: '사용자 정보가 틀렸습니다.' });
-            return;
-        }
-
-        sendJson(req, res, 200, {
-            user: {
-                uid: `sheet-${result.user.email}`,
-                name: result.user.name,
-                id: result.user.id,
-                email: result.user.email,
-                createdAt: result.user.createdAt || new Date().toLocaleDateString()
-            }
-        });
-    } catch (error) {
-        console.error('Google Sheets login failed:', error);
-        sendJson(req, res, 502, { error: '구글시트 로그인 서버와 통신하지 못했습니다.' });
-    }
-}
-
-// Calls the Apps Script web app that reads and writes the Google Sheet.
-async function callGoogleSheetAuth(scriptUrl, payload) {
-    const response = await fetch(scriptUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-    });
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-        throw new Error(data.error || `Apps Script request failed: ${response.status}`);
-    }
-
-    return data;
-}
-
 // Rejects placeholder keys so the app fails with a clear setup message.
 function hasUsableOpenAiKey() {
     const apiKey = process.env.OPENAI_API_KEY || '';
     return Boolean(apiKey && !apiKey.includes('your-api-key') && !apiKey.includes('sk-your'));
-}
-
-function hasUsableGoogleScriptUrl(scriptUrl) {
-    return Boolean(scriptUrl && !scriptUrl.includes('YOUR_DEPLOYMENT_ID'));
 }
 
 // Parses small JSON request bodies and rejects malformed or oversized payloads.
