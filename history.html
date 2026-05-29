@@ -517,7 +517,6 @@
     </main>
 
     <script>
-        let firebaseClient = null;
         const historyList = document.getElementById('historyList');
         const searchInput = document.getElementById('searchInput');
         const sortSelect = document.getElementById('sortSelect');
@@ -529,29 +528,11 @@
         const clearBtn = document.getElementById('clearBtn');
         userCount.closest('.stat').querySelector('.stat-label').textContent = 'AI 의존도';
 
-        async function setupFirebaseClient() {
-            firebaseClient = {
-                isFirebaseEnabled: () => false,
-                getSearchRecords: async () => null,
-                clearSearchRecords: async () => false
-            };
-        }
-
         function readJson(key, fallback) {
             try {
                 return JSON.parse(localStorage.getItem(key) || fallback);
             } catch {
                 return JSON.parse(fallback);
-            }
-        }
-
-        function getSession() {
-            const raw = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
-            if (!raw) return null;
-            try {
-                return JSON.parse(raw);
-            } catch {
-                return null;
             }
         }
 
@@ -574,33 +555,22 @@
             }[char]));
         }
 
+        // Reads only records created by AI search: user question, AI answer, timestamp.
         function getSearchHistory() {
-            return readJson('nexis_search_history', '[]').map((item, index) => ({
-                question: item.question || item.query || '검색어 없음',
-                answer: item.answer || '힌트 기록 없음',
-                name: item.name || 'Unknown',
-                email: item.email || 'N/A',
-                timestamp: item.timestamp || new Date().toISOString(),
-                index
-            }));
+            const sanitizedHistory = readJson('nexis_search_history', '[]')
+                .filter(item => item && (item.question || item.query) && item.answer)
+                .map(item => ({
+                    question: item.question || item.query || '검색어 없음',
+                    answer: item.answer || 'AI 답변 없음',
+                    timestamp: item.timestamp || new Date().toISOString()
+                }));
+
+            localStorage.setItem('nexis_search_history', JSON.stringify(sanitizedHistory.slice(0, 100)));
+            return sanitizedHistory.map((item, index) => ({ ...item, index }));
         }
 
         async function getSearchHistorySource() {
-            const session = getSession();
-            const email = (session?.email || '').toLowerCase();
-
-            if (firebaseClient && firebaseClient.isFirebaseEnabled()) {
-                try {
-                    const remoteHistory = await firebaseClient.getSearchRecords(email);
-                    if (remoteHistory) return remoteHistory;
-                } catch (error) {
-                    console.warn('Firestore search history read failed:', error);
-                }
-            }
-
-            const localHistory = getSearchHistory();
-            if (!email) return localHistory;
-            return localHistory.filter(item => (item.email || '').toLowerCase() === email);
+            return getSearchHistory();
         }
 
         function calculateAiDependency(records) {
@@ -620,17 +590,12 @@
         }
 
         function renderProfile() {
-            const session = getSession();
-            const users = readJson('nexis_users', '[]');
-            userCount.textContent = users.length;
-
-            if (!session) return;
-
-            document.getElementById('profileAvatar').textContent = (session.name || 'U').charAt(0);
-            document.getElementById('profileName').textContent = session.name || '사용자';
-            document.getElementById('profileEmail').textContent = session.email || '이메일 없음';
-            document.getElementById('lastLogin').textContent = '최근 세션: ' + (session.loggedInAt || '확인 불가');
-            document.getElementById('storageMode').textContent = localStorage.getItem('nexis_session') ? '저장 위치: localStorage' : '저장 위치: sessionStorage';
+            document.getElementById('profileName').textContent = '검색 기록';
+            document.getElementById('profileEmail').textContent = '검색어와 AI 답변만 저장';
+            document.getElementById('lastLogin').textContent = '개인정보 저장 없음';
+            document.getElementById('storageMode').textContent = '저장 위치: 브라우저';
+            document.getElementById('profileAvatar').textContent = 'H';
+            userCount.closest('.stat').querySelector('.stat-label').textContent = 'AI 의존도';
         }
 
         async function renderHistory() {
@@ -641,11 +606,11 @@
 
             totalCount.textContent = allHistory.length;
             todayCount.textContent = allHistory.filter(item => new Date(item.timestamp).toDateString() === todayKey).length;
-            userCount.textContent = `${calculateAiDependency(allHistory)}%`;
+            userCount.textContent = String(calculateAiDependency(allHistory)) + '%';
 
             let rows = allHistory.filter(item => {
-                const haystack = `${item.question} ${item.answer} ${item.name} ${item.email}`.toLowerCase();
-                return haystack.includes(query);
+                const haystack = String(item.question || '') + ' ' + String(item.answer || '');
+                return haystack.toLowerCase().includes(query);
             });
 
             rows.sort((a, b) => {
@@ -659,8 +624,8 @@
             if (!rows.length) {
                 historyList.innerHTML = `
                     <div class="empty">
-                        <strong>검색 기록이 없습니다</strong>
-                        <span>Nexis AI에게 질문하면 검색어와 힌트가 여기에 저장됩니다.</span>
+                        <strong>저장된 기록이 없습니다</strong>
+                        <span>검색하면 사용자가 입력한 검색어와 AI 답변만 여기에 기록됩니다.</span>
                     </div>
                 `;
                 return;
@@ -672,9 +637,8 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                     </div>
                     <div>
-                        <div class="question">Q. ${escapeHtml(item.question)}</div>
-                        <div class="answer">Hint. ${escapeHtml(item.answer)}</div>
-                        <div class="meta">${escapeHtml(item.name)} 쨌 ${escapeHtml(item.email)}</div>
+                        <div class="question">검색어: ${escapeHtml(item.question)}</div>
+                        <div class="answer">AI 답변: ${escapeHtml(item.answer)}</div>
                     </div>
                     <time class="history-time" datetime="${escapeHtml(item.timestamp)}">${formatDate(item.timestamp)}</time>
                 </article>
@@ -683,7 +647,7 @@
 
         async function exportCsv() {
             const rows = await getSearchHistorySource();
-            const header = ['question', 'answer', 'name', 'email', 'timestamp'];
+            const header = ['question', 'answer', 'timestamp'];
             const csv = [
                 header.join(','),
                 ...rows.map(row => header.map(key => `"${String(row[key] || '').replace(/"/g, '""')}"`).join(','))
@@ -699,130 +663,7 @@
         }
 
         async function clearHistory() {
-            if (!confirm('모든 검색 기록을 삭제할까요?')) return;
-            const session = getSession();
-            const email = (session?.email || '').toLowerCase();
-            if (firebaseClient && firebaseClient.isFirebaseEnabled()) {
-                try {
-                    await firebaseClient.clearSearchRecords(email);
-                } catch (error) {
-                    console.warn('Firestore search history clear failed:', error);
-                }
-            }
-            localStorage.removeItem('nexis_search_history');
-            renderHistory();
-        }
-
-        // Corrected history source reader. Firestore rules are uid-based, so uid is used first.
-        async function getSearchHistorySource() {
-            const session = getSession();
-            const uid = session?.uid || '';
-            const email = (session?.email || '').toLowerCase();
-
-            if (firebaseClient && firebaseClient.isFirebaseEnabled()) {
-                try {
-                    const remoteHistory = await firebaseClient.getSearchRecords({ uid, email });
-                    if (remoteHistory) return remoteHistory;
-                } catch (error) {
-                    console.warn('Firestore search history read failed:', error);
-                }
-            }
-
-            const localHistory = readJson('nexis_search_history', '[]').map((item, index) => ({
-                question: item.question || item.query || '寃?됱뼱 ?놁쓬',
-                answer: item.answer || '?뚰듃 湲곕줉 ?놁쓬',
-                name: item.name || 'Unknown',
-                email: item.email || 'N/A',
-                timestamp: item.timestamp || new Date().toISOString(),
-                index
-            }));
-
-            if (!email) return localHistory;
-            return localHistory.filter(item => (item.email || '').toLowerCase() === email);
-        }
-
-        // Corrected profile renderer for the current saved session.
-        function renderProfile() {
-            const session = getSession();
-            const users = readJson('nexis_users', '[]');
-            userCount.closest('.stat').querySelector('.stat-label').textContent = 'AI 의존도';
-            userCount.textContent = users.length;
-
-            if (!session) return;
-
-            document.getElementById('profileAvatar').textContent = (session.name || 'U').charAt(0);
-            document.getElementById('profileName').textContent = session.name || '사용자';
-            document.getElementById('profileEmail').textContent = session.email || '이메일 없음';
-            document.getElementById('lastLogin').textContent = '최근 세션: ' + (session.loggedInAt || '확인 불가');
-            document.getElementById('storageMode').textContent = localStorage.getItem('nexis_session')
-                ? '저장 위치: localStorage'
-                : '저장 위치: sessionStorage';
-        }
-
-        // Corrected history renderer with readable empty, count, and metadata text.
-        async function renderHistory() {
-            const query = searchInput.value.trim().toLowerCase();
-            const sort = sortSelect.value;
-            const allHistory = await getSearchHistorySource();
-            const todayKey = new Date().toDateString();
-
-            totalCount.textContent = allHistory.length;
-            todayCount.textContent = allHistory.filter(item => new Date(item.timestamp).toDateString() === todayKey).length;
-            userCount.textContent = `${calculateAiDependency(allHistory)}%`;
-
-            let rows = allHistory.filter(item => {
-                const haystack = `${item.question} ${item.answer} ${item.name} ${item.email}`.toLowerCase();
-                return haystack.includes(query);
-            });
-
-            rows.sort((a, b) => {
-                const left = new Date(a.timestamp).getTime();
-                const right = new Date(b.timestamp).getTime();
-                return sort === 'oldest' ? left - right : right - left;
-            });
-
-            visibleCount.textContent = '표시 중 ' + rows.length + '개';
-
-            if (!rows.length) {
-                historyList.innerHTML = `
-                    <div class="empty">
-                        <strong>검색 기록이 없습니다</strong>
-                        <span>Nexis AI에게 질문하면 검색어와 힌트가 여기에 저장됩니다.</span>
-                    </div>
-                `;
-                return;
-            }
-
-            historyList.innerHTML = rows.map(item => `
-                <article class="history-row">
-                    <div class="record-icon" aria-hidden="true">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    </div>
-                    <div>
-                        <div class="question">Q. ${escapeHtml(item.question)}</div>
-                        <div class="answer">Hint. ${escapeHtml(item.answer)}</div>
-                        <div class="meta">${escapeHtml(item.name)} ? ${escapeHtml(item.email)}</div>
-                    </div>
-                    <time class="history-time" datetime="${escapeHtml(item.timestamp)}">${formatDate(item.timestamp)}</time>
-                </article>
-            `).join('');
-        }
-
-        // Corrected clear action. It deletes Firestore records for the uid and then clears local fallback data.
-        async function clearHistory() {
-            if (!confirm('紐⑤뱺 寃??湲곕줉????젣?좉퉴??')) return;
-            const session = getSession();
-            const uid = session?.uid || '';
-            const email = (session?.email || '').toLowerCase();
-
-            if (firebaseClient && firebaseClient.isFirebaseEnabled()) {
-                try {
-                    await firebaseClient.clearSearchRecords({ uid, email });
-                } catch (error) {
-                    console.warn('Firestore search history clear failed:', error);
-                }
-            }
-
+            if (!confirm('검색 기록을 모두 삭제할까요?')) return;
             localStorage.removeItem('nexis_search_history');
             renderHistory();
         }
@@ -833,10 +674,8 @@
         exportBtn.addEventListener('click', exportCsv);
         clearBtn.addEventListener('click', clearHistory);
 
-        setupFirebaseClient().finally(() => {
-            renderProfile();
-            renderHistory();
-        });
+        renderProfile();
+        renderHistory();
     </script>
 </body>
 </html>

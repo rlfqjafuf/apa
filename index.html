@@ -2083,52 +2083,29 @@
             // Saves a local browser copy of the search record.
             async function saveSearchHistory(question, answer) {
                 const now = new Date();
-                const activeSession = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
-                const activeUser = activeSession ? JSON.parse(activeSession) : {};
                 const record = {
-                    uid: activeUser.uid || '',
                     question,
                     answer,
-                    name: activeUser.name || 'Unknown',
-                    email: activeUser.email || 'N/A',
                     timestamp: now.toISOString()
                 };
                 const history = JSON.parse(localStorage.getItem('nexis_search_history') || '[]');
                 history.unshift(record);
                 localStorage.setItem('nexis_search_history', JSON.stringify(history.slice(0, 100)));
 
-                if (firebaseClient && firebaseClient.isFirebaseEnabled()) {
-                    try {
-                        await firebaseClient.saveSearchRecord({
-                            ...record,
-                            email: String(record.email).toLowerCase()
-                        });
-                    } catch (error) {
-                        console.warn('Firestore search history save failed:', error);
-                    }
-                }
-
                 renderAiDependency();
             }
 
-            // Reads Firestore records for the signed-in user and falls back to localStorage.
+            // Reads only local search records: user question, AI answer, timestamp.
             async function readSearchHistoryForCurrentUser() {
-                const activeSession = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
-                const activeUser = activeSession ? JSON.parse(activeSession) : {};
-                const email = (activeUser.email || '').toLowerCase();
-                const history = JSON.parse(localStorage.getItem('nexis_search_history') || '[]');
-
-                if (firebaseClient && firebaseClient.isFirebaseEnabled()) {
-                    try {
-                        const remoteHistory = await firebaseClient.getSearchRecords({ uid: activeUser.uid, email });
-                        if (remoteHistory) return remoteHistory;
-                    } catch (error) {
-                        console.warn('Firestore search history read failed:', error);
-                    }
-                }
-
-                if (!email) return history;
-                return history.filter(item => (item.email || '').toLowerCase() === email);
+                const sanitizedHistory = JSON.parse(localStorage.getItem('nexis_search_history') || '[]')
+                    .filter(item => item && (item.question || item.query) && item.answer)
+                    .map(item => ({
+                        question: item.question || item.query,
+                        answer: item.answer,
+                        timestamp: item.timestamp || new Date().toISOString()
+                    }));
+                localStorage.setItem('nexis_search_history', JSON.stringify(sanitizedHistory.slice(0, 100)));
+                return sanitizedHistory;
             }
 
             function calculateAiDependency(records) {
