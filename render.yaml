@@ -17,5 +17,7 @@ services:
         value: "25000"
       - key: OPENAI_API_KEY
         sync: false
+      - key: GOOGLE_SHEETS_SCRIPT_URL
+        sync: false
       - key: ALLOWED_ORIGIN
         sync: false

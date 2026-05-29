@@ -2030,7 +2030,7 @@
                 }
             }
 
-            // Firebase was removed; this local adapter keeps the app working with browser storage.
+            // Google Sheets account adapter. The browser calls our backend, and the backend calls Apps Script.
             async function setupFirebaseClient() {
                 if (firebaseClient) return firebaseClient;
 
@@ -2045,34 +2045,59 @@
                     logoutUser: async () => true,
                     sendPasswordReset: async () => true,
                     registerUser: async ({ name, email, password }) => {
-                        const users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
-                        if (users.some(user => user.email.toLowerCase() === email.toLowerCase())) {
-                            const error = new Error('이미 등록된 이메일 주소입니다.');
-                            error.code = 'auth/email-already-in-use';
+                        const response = await fetch('/api/accounts/register', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                name,
+                                id: email.split('@')[0],
+                                email,
+                                password
+                            })
+                        });
+                        const data = await response.json().catch(() => ({}));
+                        if (!response.ok) {
+                            const error = new Error(data.error || '계정을 만들지 못했습니다.');
+                            if (response.status === 409) error.code = 'auth/email-already-in-use';
                             throw error;
                         }
 
-                        const now = new Date();
                         const user = {
-                            uid: `local-${Date.now()}`,
+                            ...data.user,
                             email,
                             name,
-                            password,
-                            createdAt: now.toLocaleDateString(),
+                            createdAt: data.user?.createdAt || new Date().toLocaleDateString(),
                             bio: ''
                         };
-                        users.push(user);
-                        localStorage.setItem('nexis_users', JSON.stringify(users));
+
+                        const users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
+                        const filteredUsers = users.filter(item => item.email.toLowerCase() !== email.toLowerCase());
+                        filteredUsers.push(user);
+                        localStorage.setItem('nexis_users', JSON.stringify(filteredUsers));
                         return user;
                     },
                     loginUser: async ({ email, password }) => {
-                        const users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
-                        const user = users.find(item => item.email.toLowerCase() === email.toLowerCase() && item.password === password);
-                        if (!user) {
-                            const error = new Error('이메일 또는 비밀번호가 일치하지 않습니다.');
+                        const response = await fetch('/api/accounts/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, password })
+                        });
+                        const data = await response.json().catch(() => ({}));
+                        if (!response.ok) {
+                            const error = new Error(data.error || '사용자 정보가 틀렸습니다.');
                             error.code = 'auth/invalid-credential';
                             throw error;
                         }
+
+                        const user = {
+                            ...data.user,
+                            bio: ''
+                        };
+
+                        const users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
+                        const filteredUsers = users.filter(item => item.email.toLowerCase() !== user.email.toLowerCase());
+                        filteredUsers.push(user);
+                        localStorage.setItem('nexis_users', JSON.stringify(filteredUsers));
                         return user;
                     },
                     updateUserProfile: async ({ uid, name, bio }) => {
