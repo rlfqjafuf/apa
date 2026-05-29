@@ -1808,7 +1808,7 @@
                 try {
                     if (!firebaseClient) await setupFirebaseClient();
                     const newUser = await firebaseClient.registerUser({ name, email, password });
-                    showToast('?뚯썝媛?낆씠 ?꾨즺?섏뿀?듬땲??', 'success');
+                    showToast('회원가입이 완료되었습니다.', 'success');
                     signUpForm.reset();
                     passwordRules.style.display = 'none';
                     createSession(newUser);
@@ -2057,7 +2057,7 @@
                         });
                         const data = await response.json().catch(() => ({}));
                         if (!response.ok) {
-                            const error = new Error(data.error || '계정을 만들지 못했습니다.');
+                            const error = new Error(data.error || `회원가입 요청이 실패했습니다. 상태 코드: ${response.status}`);
                             if (response.status === 409) error.code = 'auth/email-already-in-use';
                             throw error;
                         }

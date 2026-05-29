@@ -298,7 +298,10 @@ async function handleAccountRegister(req, res) {
 
         if (!result.ok) {
             const status = result.code === 'duplicate_email' ? 409 : 400;
-            sendJson(req, res, status, { error: result.error || '계정을 만들지 못했습니다.' });
+            sendJson(req, res, status, {
+                code: result.code || 'register_failed',
+                error: result.error || '구글시트가 계정 생성을 거부했습니다. Apps Script 응답을 확인해 주세요.'
+            });
             return;
         }
 
