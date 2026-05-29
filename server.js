@@ -117,12 +117,16 @@ function setCorsHeaders(req, res) {
     const allowedOrigin = process.env.ALLOWED_ORIGIN || '';
     const requestOrigin = req.headers.origin || '';
     const isLocalDev = (process.env.NODE_ENV || 'development') !== 'production';
+    const isAllowedDevOrigin = requestOrigin === 'null'
+        || /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(requestOrigin)
+        || /^https:\/\/[a-z0-9-]+\.github\.io$/i.test(requestOrigin);
 
     if (!allowedOrigin && isLocalDev) {
-        if (requestOrigin === 'null' || /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(requestOrigin)) {
+        if (isAllowedDevOrigin) {
             res.setHeader('Access-Control-Allow-Origin', requestOrigin);
             res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
             res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+            res.setHeader('Access-Control-Allow-Private-Network', 'true');
         }
         return;
     }
@@ -134,6 +138,7 @@ function setCorsHeaders(req, res) {
         res.setHeader('Access-Control-Allow-Origin', allowedOrigins.includes('*') ? '*' : requestOrigin);
         res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+        res.setHeader('Access-Control-Allow-Private-Network', 'true');
     }
 }
 
