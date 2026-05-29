@@ -225,6 +225,13 @@ async function handleSearch(req, res) {
         const data = await response.json().catch(() => ({}));
 
         if (!response.ok) {
+            if (response.status === 401) {
+                sendJson(req, res, 401, {
+                    error: 'OpenAI API 키가 올바르지 않거나 만료되었습니다. 새 API 키로 교체해 주세요.'
+                });
+                return;
+            }
+
             sendJson(req, res, response.status, {
                 error: data.error?.message || 'OpenAI API 요청에 실패했습니다.'
             });
