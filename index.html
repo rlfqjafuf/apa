@@ -2030,28 +2030,72 @@
                 }
             }
 
-            // Imports the Firebase wrapper only after the page has loaded.
+            // Firebase was removed; this local adapter keeps the app working with browser storage.
             async function setupFirebaseClient() {
-                try {
-                    firebaseClient = await import('./firebase-client.js');
-                    await firebaseClient.initFirebaseClient();
-                    firebaseClient.onAuthChange(async (authUser) => {
-                        if (!authUser) return;
-                        const profile = await firebaseClient.getUserProfile(authUser.uid);
-                        if (!profile) return;
-                        const sessionData = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
-                        if (!sessionData) {
-                            createSession(profile);
+                if (firebaseClient) return firebaseClient;
+
+                firebaseClient = {
+                    isFirebaseEnabled: () => false,
+                    onAuthChange: () => () => {},
+                    getUserCount: async () => JSON.parse(localStorage.getItem('nexis_users') || '[]').length,
+                    saveAccountLog: async () => false,
+                    saveSearchRecord: async () => false,
+                    getSearchRecords: async () => null,
+                    clearSearchRecords: async () => false,
+                    logoutUser: async () => true,
+                    sendPasswordReset: async () => true,
+                    registerUser: async ({ name, email, password }) => {
+                        const users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
+                        if (users.some(user => user.email.toLowerCase() === email.toLowerCase())) {
+                            const error = new Error('이미 등록된 이메일 주소입니다.');
+                            error.code = 'auth/email-already-in-use';
+                            throw error;
                         }
-                    });
-                    renderAiDependency();
-                } catch (error) {
-                    console.warn('Firebase initialization skipped:', error);
-                    firebaseClient = null;
-                }
+
+                        const now = new Date();
+                        const user = {
+                            uid: `local-${Date.now()}`,
+                            email,
+                            name,
+                            password,
+                            createdAt: now.toLocaleDateString(),
+                            bio: ''
+                        };
+                        users.push(user);
+                        localStorage.setItem('nexis_users', JSON.stringify(users));
+                        return user;
+                    },
+                    loginUser: async ({ email, password }) => {
+                        const users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
+                        const user = users.find(item => item.email.toLowerCase() === email.toLowerCase() && item.password === password);
+                        if (!user) {
+                            const error = new Error('이메일 또는 비밀번호가 일치하지 않습니다.');
+                            error.code = 'auth/invalid-credential';
+                            throw error;
+                        }
+                        return user;
+                    },
+                    updateUserProfile: async ({ uid, name, bio }) => {
+                        const sessionData = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');
+                        const session = sessionData ? JSON.parse(sessionData) : {};
+                        const users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
+                        const index = users.findIndex(user => user.uid === uid || user.email === session.email);
+                        const profile = { ...session, ...users[index], uid: uid || session.uid, name, bio };
+
+                        if (index !== -1) {
+                            users[index] = { ...users[index], name, bio };
+                            localStorage.setItem('nexis_users', JSON.stringify(users));
+                        }
+
+                        return profile;
+                    }
+                };
+
+                renderAiDependency();
+                return firebaseClient;
             }
 
-            // Saves a local copy immediately, then mirrors the same search record to Firestore.
+            // Saves a local browser copy of the search record.
             async function saveSearchHistory(question, answer) {
                 const now = new Date();
                 const activeSession = sessionStorage.getItem('nexis_session') || localStorage.getItem('nexis_session');

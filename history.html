@@ -530,13 +530,11 @@
         userCount.closest('.stat').querySelector('.stat-label').textContent = 'AI 의존도';
 
         async function setupFirebaseClient() {
-            try {
-                firebaseClient = await import('./firebase-client.js');
-                await firebaseClient.initFirebaseClient();
-            } catch (error) {
-                console.warn('Firebase initialization skipped:', error);
-                firebaseClient = null;
-            }
+            firebaseClient = {
+                isFirebaseEnabled: () => false,
+                getSearchRecords: async () => null,
+                clearSearchRecords: async () => false
+            };
         }
 
         function readJson(key, fallback) {
