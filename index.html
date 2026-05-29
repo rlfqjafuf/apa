@@ -563,6 +563,10 @@
             gap: 20px;
         }
 
+        #dashboardWrapper > .db-header > .db-user-profile {
+            display: none;
+        }
+
         .db-avatar {
             width: 64px;
             height: 64px;
@@ -2123,20 +2127,20 @@
                 const repeatScore = Math.min(30, repeatRate * 0.3);
                 const score = Math.min(100, Math.round(volumeScore + todayScore + repeatScore));
 
-                let level = '??쓬';
+                let level = '낮음';
                 let levelClass = '';
-                let advice = '洹좏삎?곸쑝濡??ъ슜 以묒엯?덈떎. 以묒슂???먮떒? 吏곸젒 寃?좏븯???듦????좎??섏꽭??';
+                let advice = '균형적으로 사용 중입니다. 중요한 판단은 직접 확인하고 정리해 보세요.';
 
                 if (score >= 70) {
-                    level = '?믪쓬';
+                    level = '높음';
                     levelClass = 'high';
-                    advice = 'AI ?ъ슜 鍮덈룄媛 ?믪뒿?덈떎. ?듬???洹몃?濡??곸슜?섍린蹂대떎 洹쇨굅 ?뺤씤怨?吏곸젒 ?뺣━瑜??④퍡 ?대낫?몄슂.';
+                    advice = 'AI 사용 빈도가 높습니다. 답변을 그대로 적용하기보다 근거 확인과 직접 정리를 함께 해보세요.';
                 } else if (score >= 40) {
-                    level = '二쇱쓽';
+                    level = '주의';
                     levelClass = 'medium';
-                    advice = 'AI ?꾩????먯＜ 諛쏄퀬 ?덉뒿?덈떎. 諛섎났 吏덈Ц? 硫붾え濡??뺣━?섎㈃ ?섏〈?꾨? ??텛?????꾩????⑸땲??';
+                    advice = 'AI 힌트를 자주 받고 있습니다. 반복 질문은 메모로 정리하면 의존도를 낮추는 데 도움이 됩니다.';
                 } else if (!records.length) {
-                    advice = 'AI 寃??湲곕줉???볦씠硫??섏〈??遺꾩꽍???쒖떆?⑸땲??';
+                    advice = 'AI 검색 기록이 쌓이면 의존도 분석을 표시합니다.';
                 }
 
                 return {
