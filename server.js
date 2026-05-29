@@ -13,6 +13,10 @@ const port = Number(process.env.PORT || 4175);
 const host = process.env.HOST || '0.0.0.0';
 const model = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
 const openAiTimeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 25000);
+const appsScriptUrl = process.env.GOOGLE_APPS_SCRIPT_URL || process.env.APPS_SCRIPT_URL || '';
+const appsScriptSecret = process.env.GOOGLE_APPS_SCRIPT_SECRET || '';
+const openAiKeyCacheMs = Number(process.env.OPENAI_KEY_CACHE_MS || 5 * 60 * 1000);
+let cachedOpenAiKey = { value: '', expiresAt: 0 };
 
 const mimeTypes = {
     '.html': 'text/html; charset=utf-8',
@@ -45,7 +49,8 @@ const server = http.createServer(async (req, res) => {
                 ok: true,
                 service: 'nexis-backend',
                 environment: process.env.NODE_ENV || 'development',
-                openaiConfigured: hasUsableOpenAiKey(),
+                openaiConfigured: await hasUsableOpenAiKey(),
+                openaiKeySource: appsScriptUrl ? 'google-sheet-or-env' : 'env',
                 timestamp: new Date().toISOString()
             });
             return;
@@ -170,9 +175,11 @@ function serveStatic(requestPath, req, res) {
 
 // Calls OpenAI Responses API and asks it to provide hints instead of final answers.
 async function handleSearch(req, res) {
-    if (!hasUsableOpenAiKey()) {
+    const openAiApiKey = await getOpenAiApiKey();
+
+    if (!isUsableOpenAiKey(openAiApiKey)) {
         sendJson(req, res, 500, {
-            error: 'OPENAI_API_KEY가 설정되어 있지 않습니다. Render 환경 변수 또는 apa/.env에 API 키를 넣어 주세요.'
+            error: 'OpenAI API 키를 찾지 못했습니다. 구글시트 키 시트 A2 또는 .env 설정을 확인해 주세요.'
         });
         return;
     }
@@ -206,7 +213,7 @@ async function handleSearch(req, res) {
         const response = await fetch('https://api.openai.com/v1/responses', {
             method: 'POST',
             headers: {
-                Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+                Authorization: `Bearer ${openAiApiKey}`,
                 'Content-Type': 'application/json'
             },
             signal: controller.signal,
@@ -267,9 +274,55 @@ async function handleSearch(req, res) {
 }
 
 // Rejects placeholder keys so the app fails with a clear setup message.
-function hasUsableOpenAiKey() {
-    const apiKey = process.env.OPENAI_API_KEY || '';
+async function hasUsableOpenAiKey() {
+    return isUsableOpenAiKey(await getOpenAiApiKey());
+}
+
+function isUsableOpenAiKey(apiKey) {
     return Boolean(apiKey && !apiKey.includes('your-api-key') && !apiKey.includes('sk-your'));
+}
+
+async function getOpenAiApiKey() {
+    if (Date.now() < cachedOpenAiKey.expiresAt && isUsableOpenAiKey(cachedOpenAiKey.value)) {
+        return cachedOpenAiKey.value;
+    }
+
+    const sheetKey = await getOpenAiApiKeyFromGoogleSheet();
+    const fallbackKey = process.env.OPENAI_API_KEY || '';
+    const apiKey = isUsableOpenAiKey(sheetKey) ? sheetKey : fallbackKey;
+
+    cachedOpenAiKey = {
+        value: apiKey,
+        expiresAt: Date.now() + openAiKeyCacheMs
+    };
+
+    return apiKey;
+}
+
+async function getOpenAiApiKeyFromGoogleSheet() {
+    if (!appsScriptUrl) return '';
+
+    try {
+        const response = await fetch(appsScriptUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+                action: 'getOpenAiKey',
+                secret: appsScriptSecret
+            })
+        });
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || !data.ok) {
+            console.warn('Google Sheet API key read failed:', data.error || response.statusText);
+            return '';
+        }
+
+        return String(data.apiKey || '').trim();
+    } catch (error) {
+        console.warn('Google Sheet API key read failed:', error.message);
+        return '';
+    }
 }
 
 // Parses small JSON request bodies and rejects malformed or oversized payloads.
