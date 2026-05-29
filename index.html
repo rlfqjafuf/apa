@@ -1908,6 +1908,14 @@
                 }
             }
 
+            function isFirebaseAuthSetupError(error) {
+                const code = error?.code || '';
+                const message = String(error?.message || '');
+                return code === 'auth/operation-not-allowed'
+                    || code === 'auth/configuration-not-found'
+                    || message.includes('CONFIGURATION_NOT_FOUND');
+            }
+
             signUpForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 e.stopImmediatePropagation();
@@ -1940,6 +1948,10 @@
                     passwordRules.style.display = 'none';
                     createSession(newUser);
                 } catch (error) {
+                    if (isFirebaseAuthSetupError(error)) {
+                        showToast('Firebase Authentication에서 이메일/비밀번호 로그인을 먼저 활성화해 주세요.', 'error');
+                        return;
+                    }
                     const message = error.code === 'auth/email-already-in-use'
                         ? '이미 등록된 이메일 주소입니다.'
                         : error.code === 'auth/operation-not-allowed'
@@ -1962,6 +1974,10 @@
                     showToast(`${targetUser.name}님, 환영합니다.`, 'success');
                     createSession(targetUser);
                 } catch (error) {
+                    if (isFirebaseAuthSetupError(error)) {
+                        showToast('Firebase Authentication에서 이메일/비밀번호 로그인을 먼저 활성화해 주세요.', 'error');
+                        return;
+                    }
                     const message = error.code === 'auth/invalid-credential'
                         ? '이메일 또는 비밀번호가 일치하지 않습니다.'
                         : error.message || '로그인 중 오류가 발생했습니다.';

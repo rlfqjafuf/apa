@@ -290,6 +290,6 @@ function normalizeSearchRecord(data, id) {
 
 function assertFirebase() {
     if (!isFirebaseEnabled()) {
-        throw new Error('Firebase가 설정되어 있지 않습니다.');
+        throw new Error('Firebase가 설정되어 있지 않습니다. /api/firebase-config와 Firebase 환경 변수를 확인해 주세요.');
     }
 }
