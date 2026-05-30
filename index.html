@@ -2467,6 +2467,7 @@
                 if (location.protocol === 'http:' || location.protocol === 'https:') {
                     urls.push('/api/search');
                 }
+                urls.push('https://nexis-ai-search.onrender.com/api/search');
                 urls.push('http://127.0.0.1:4184/api/search');
                 return [...new Set(urls)];
             }

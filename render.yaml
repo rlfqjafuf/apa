@@ -18,4 +18,10 @@ services:
       - key: OPENAI_API_KEY
         sync: false
       - key: ALLOWED_ORIGIN
+        value: https://rlfqjafuf.github.io
+      - key: GOOGLE_APPS_SCRIPT_URL
         sync: false
+      - key: GOOGLE_APPS_SCRIPT_SECRET
+        sync: false
+      - key: OPENAI_KEY_CACHE_MS
+        value: "300000"
