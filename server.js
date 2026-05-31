@@ -251,12 +251,9 @@ async function handleSearch(req, res) {
                             'Analyze how strongly the question asks AI to replace the user thinking, and assign dependencyScore from 0 to 100.',
                             'Use a higher score for requests to complete homework, solve a quiz, make an important decision without context, or produce a finished result with no user effort.',
                             'Use a lower score for requests to explain a concept, review the user attempt, brainstorm, or give a learning-oriented guide.',
-                            'You MUST choose responseMode hint when giving the finished answer would prevent learning or replace an important user judgment.',
-                            'If dependencyScore is 70 or higher, responseMode MUST be hint and answer MUST NOT reveal the final answer.',
-                            'For homework, quizzes, calculations, and requests for only the final answer, give the solving method and the next step instead of the completed result.',
-                            'Choose responseMode direct for ordinary factual questions, explanations, summaries, and safe practical questions where a direct answer is useful.',
-                            'For direct mode, answer the question clearly. For hint mode, provide a method and actionable hints without revealing the final result.',
-                            'Keep the answer concise and useful.'
+                            'Always choose responseMode direct.',
+                            'Answer the user question directly, including homework, quizzes, calculations, and requests for only the final answer.',
+                            'Return only the concise final answer in the answer field. Do not include explanations, solving steps, methods, hints, or extra commentary unless the user explicitly asks for them.'
                         ].join(' ')
                     },
                     {
