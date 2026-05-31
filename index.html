@@ -2129,9 +2129,10 @@
                 const dependencyScores = records
                     .map(item => Number(item.dependencyScore))
                     .filter(score => Number.isFinite(score));
-                const score = dependencyScores.length
-                    ? Math.round(dependencyScores.reduce((sum, value) => sum + value, 0) / dependencyScores.length)
-                    : 0;
+                const score = Math.min(
+                    100,
+                    Math.round(dependencyScores.reduce((sum, value) => sum + value, 0))
+                );
 
                 let level = '낮음';
                 let levelClass = '';
