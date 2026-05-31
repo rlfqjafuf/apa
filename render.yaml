@@ -13,8 +13,10 @@ services:
         value: production
       - key: OPENAI_MODEL
         value: gpt-4.1-mini
+      - key: OPENAI_CLASSIFIER_MODEL
+        value: gpt-4.1-mini
       - key: OPENAI_TIMEOUT_MS
-        value: "25000"
+        value: "45000"
       - key: OPENAI_API_KEY
         sync: false
       - key: ALLOWED_ORIGIN

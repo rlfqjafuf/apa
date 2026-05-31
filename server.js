@@ -12,6 +12,7 @@ loadEnvFile();
 const port = Number(process.env.PORT || 4175);
 const host = process.env.HOST || '0.0.0.0';
 const model = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
+const classifierModel = process.env.OPENAI_CLASSIFIER_MODEL || 'gpt-4.1-mini';
 const openAiTimeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 25000);
 const appsScriptUrl = process.env.GOOGLE_APPS_SCRIPT_URL || process.env.APPS_SCRIPT_URL || '';
 const appsScriptSecret = process.env.GOOGLE_APPS_SCRIPT_SECRET || '';
@@ -215,80 +216,92 @@ async function handleSearch(req, res) {
     const timeout = setTimeout(() => controller.abort(), openAiTimeoutMs);
 
     try {
-        const response = await fetch('https://api.openai.com/v1/responses', {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${openAiApiKey}`,
-                'Content-Type': 'application/json'
+        const classificationData = await requestOpenAiResponse(openAiApiKey, controller.signal, {
+            model: classifierModel,
+            text: {
+                format: {
+                    type: 'json_schema',
+                    name: 'nexis_question_classification',
+                    strict: true,
+                    schema: {
+                        type: 'object',
+                        properties: {
+                            questionType: { type: 'string', enum: ['daily', 'thinking'] },
+                            dependencyScore: { type: 'integer', minimum: 0, maximum: 100 },
+                            dependencyReason: { type: 'string' }
+                        },
+                        required: ['questionType', 'dependencyScore', 'dependencyReason'],
+                        additionalProperties: false
+                    }
+                }
             },
-            signal: controller.signal,
-            body: JSON.stringify({
-                model,
-                text: {
-                    format: {
-                        type: 'json_schema',
-                        name: 'nexis_ai_answer',
-                        strict: true,
-                        schema: {
-                            type: 'object',
-                            properties: {
-                                answer: { type: 'string' },
-                                dependencyScore: { type: 'integer', minimum: 0, maximum: 100 },
-                                responseMode: { type: 'string', enum: ['direct', 'hint'] },
-                                dependencyReason: { type: 'string' }
-                            },
-                            required: ['answer', 'dependencyScore', 'responseMode', 'dependencyReason'],
-                            additionalProperties: false
-                        }
-                    }
+            input: [
+                {
+                    role: 'developer',
+                    content: [
+                        'Classify the user question at the word and intent level.',
+                        'Return daily for factual lookups, ordinary explanations, definitions, simple recommendations, and everyday questions.',
+                        'Return thinking for homework, quizzes, calculations, essay writing, coding tasks, complex problem solving, and questions where giving the finished result would replace the user reasoning.',
+                        'Assign dependencyScore consistently: 0-20 for simple daily questions, 21-40 for summaries and brainstorming, 41-69 for substantial assistance, and 70-100 for questions that outsource reasoning or request a finished result.',
+                        'Write dependencyReason in Korean.'
+                    ].join(' ')
                 },
-                input: [
-                    {
-                        role: 'developer',
-                        content: [
-                            'You are Nexis AI Assistant.',
-                            'Respond in Korean.',
-                            'Analyze how strongly the question asks AI to replace the user thinking, and assign dependencyScore from 0 to 100.',
-                            'Use this scoring rubric consistently: 0-20 for factual lookups and concept explanations, 21-40 for summaries and brainstorming, 41-69 for tailored drafts or substantial assistance, and 70-100 for completing homework, solving quizzes, making important decisions without context, or producing finished results with no user effort.',
-                            'Always choose responseMode direct.',
-                            'Answer the user question directly, including homework, quizzes, calculations, and requests for only the final answer.',
-                            'Answer kindly and clearly.',
-                            'Start with the direct answer, then provide a sufficiently detailed explanation that helps the user understand the answer.',
-                            'Include useful context, reasoning, steps, or examples when they improve understanding.',
-                            'For explanation questions, answer MUST contain at least 4 informative sentences covering the core idea, how it works, and why it matters.',
-                            'Keep the response focused on the question and avoid unnecessary repetition.',
-                            'Do not ask follow-up questions.',
-                            'Do not offer to provide more details, examples, explanations, or additional help.',
-                            'Do not end with phrases such as 더 구체적으로 알려드릴까요, 더 도와드릴까요, 필요하면 말씀해 주세요, 예시가 필요하면 알려 주세요, or similar suggestions.'
+                { role: 'user', content: question }
+            ]
+        });
+        const classification = extractQuestionClassification(classificationData);
+        const isThinkingQuestion = classification.questionType === 'thinking';
+
+        const answerData = await requestOpenAiResponse(openAiApiKey, controller.signal, {
+            model,
+            input: [
+                {
+                    role: 'developer',
+                    content: isThinkingQuestion
+                        ? [
+                            'You are Nexis AI Assistant. Respond in Korean.',
+                            'The question requires the user to think. Use a friendly Socratic teaching style.',
+                            'Do not reveal the final answer or submit a finished result.',
+                            'Explain the key concept briefly, then provide ordered hints and guiding questions that help the user reach the answer.',
+                            'Do not offer extra help after the response.'
                         ].join(' ')
-                    },
-                    {
-                        role: 'user',
-                        content: `사용자 이름: ${userName}\n검색어: ${question}`
-                    }
-                ]
-            })
+                        : [
+                            'You are Nexis AI Assistant. Respond in Korean.',
+                            'Answer the everyday question directly, kindly, and clearly.',
+                            'For explanation questions, provide at least 4 informative sentences covering the core idea, how it works, and why it matters.',
+                            'Do not ask follow-up questions or offer extra help after the response.'
+                        ].join(' ')
+                },
+                {
+                    role: 'user',
+                    content: `사용자 이름: ${userName}\n질문: ${question}`
+                }
+            ]
         });
 
-        const data = await response.json().catch(() => ({}));
-
-        if (!response.ok) {
-            if (response.status === 401) {
-                sendJson(req, res, 401, {
-                    error: 'OpenAI API 키가 올바르지 않거나 만료되었습니다. 새 API 키로 교체해 주세요.'
-                });
-                return;
-            }
-
-            sendJson(req, res, response.status, {
-                error: data.error?.message || 'OpenAI API 요청에 실패했습니다.'
+        sendJson(req, res, 200, {
+            answer: extractResponseText(answerData),
+            dependencyScore: classification.dependencyScore,
+            responseMode: isThinkingQuestion ? 'hint' : 'direct',
+            dependencyReason: classification.dependencyReason,
+            questionType: classification.questionType,
+            model
+        });
+    } catch (error) {
+        if (error.status === 401) {
+            sendJson(req, res, 401, {
+                error: 'OpenAI API 키가 올바르지 않거나 만료되었습니다. 새 API 키로 교체해 주세요.'
             });
             return;
         }
 
-        const result = extractStructuredAnswer(data);
-        sendJson(req, res, 200, { ...result, model });
-    } catch (error) {
+        if (error.status) {
+            sendJson(req, res, error.status, {
+                error: error.message || 'OpenAI API 요청에 실패했습니다.'
+            });
+            return;
+        }
+
         if (error.name === 'AbortError') {
             sendJson(req, res, 504, { error: 'AI 응답 시간이 초과되었습니다. 잠시 후 다시 시도해 주세요.' });
             return;
@@ -301,22 +314,41 @@ async function handleSearch(req, res) {
     }
 }
 
-function extractStructuredAnswer(data) {
+async function requestOpenAiResponse(apiKey, signal, payload) {
+    const response = await fetch('https://api.openai.com/v1/responses', {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json'
+        },
+        signal,
+        body: JSON.stringify(payload)
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        const error = new Error(data.error?.message || 'OpenAI API 요청에 실패했습니다.');
+        error.status = response.status;
+        throw error;
+    }
+
+    return data;
+}
+
+function extractQuestionClassification(data) {
     const raw = extractResponseText(data);
 
     try {
         const parsed = JSON.parse(raw);
         return {
-            answer: String(parsed.answer || '답변을 생성하지 못했습니다.'),
+            questionType: parsed.questionType === 'thinking' ? 'thinking' : 'daily',
             dependencyScore: Math.max(0, Math.min(100, Number(parsed.dependencyScore) || 0)),
-            responseMode: parsed.responseMode === 'hint' ? 'hint' : 'direct',
             dependencyReason: String(parsed.dependencyReason || '')
         };
     } catch {
         return {
-            answer: raw,
+            questionType: 'daily',
             dependencyScore: 0,
-            responseMode: 'direct',
             dependencyReason: ''
         };
     }
