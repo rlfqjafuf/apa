@@ -566,7 +566,7 @@
                 .map(item => ({
                     question: item.question || item.query || '검색어 없음',
                     answer: item.answer || 'AI 답변 없음',
-                    dependencyScore: Number(item.dependencyScore) || 0,
+                    dependencyScore: normalizeDependencyScore(item.dependencyScore),
                     responseMode: item.responseMode === 'hint' ? 'hint' : 'direct',
                     timestamp: item.timestamp || new Date().toISOString()
                 }));
@@ -579,10 +579,14 @@
             return getSearchHistory();
         }
 
+        function normalizeDependencyScore(value) {
+            const score = Number(value);
+            return Number.isFinite(score) ? Math.max(0, Math.min(100, Math.round(score))) : 0;
+        }
+
         function calculateAiDependency(records) {
             const dependencyScores = records
-                .map(item => Number(item.dependencyScore))
-                .filter(score => Number.isFinite(score));
+                .map(item => normalizeDependencyScore(item.dependencyScore));
 
             return Math.min(
                 100,

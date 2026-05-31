@@ -2089,7 +2089,7 @@
                 const record = {
                     question,
                     answer,
-                    dependencyScore,
+                    dependencyScore: normalizeDependencyScore(dependencyScore),
                     responseMode,
                     timestamp: now.toISOString()
                 };
@@ -2100,6 +2100,11 @@
                 renderAiDependency();
             }
 
+            function normalizeDependencyScore(value) {
+                const score = Number(value);
+                return Number.isFinite(score) ? Math.max(0, Math.min(100, Math.round(score))) : 0;
+            }
+
             // Reads only local search records: user question, AI answer, timestamp.
             async function readSearchHistoryForCurrentUser() {
                 const sanitizedHistory = JSON.parse(localStorage.getItem('nexis_search_history') || '[]')
@@ -2107,7 +2112,7 @@
                     .map(item => ({
                         question: item.question || item.query,
                         answer: item.answer,
-                        dependencyScore: Number(item.dependencyScore) || 0,
+                        dependencyScore: normalizeDependencyScore(item.dependencyScore),
                         responseMode: item.responseMode === 'hint' ? 'hint' : 'direct',
                         timestamp: item.timestamp || new Date().toISOString()
                     }));
@@ -2126,8 +2131,7 @@
                 const repeatRate = normalizedQuestions.length ? Math.round((repeatedCount / normalizedQuestions.length) * 100) : 0;
 
                 const dependencyScores = records
-                    .map(item => Number(item.dependencyScore))
-                    .filter(score => Number.isFinite(score));
+                    .map(item => normalizeDependencyScore(item.dependencyScore));
                 const score = Math.min(
                     100,
                     Math.round(dependencyScores.reduce((sum, value) => sum + value, 0))
@@ -2144,7 +2148,7 @@
                 } else if (score >= 40) {
                     level = '주의';
                     levelClass = 'medium';
-                    advice = 'AI 힌트를 자주 받고 있습니다. 반복 질문은 메모로 정리하면 의존도를 낮추는 데 도움이 됩니다.';
+                    advice = 'AI 답변을 자주 받고 있습니다. 반복 질문은 메모로 정리하면 의존도를 낮추는 데 도움이 됩니다.';
                 } else if (!records.length) {
                     advice = 'AI 검색 기록이 쌓이면 의존도 분석을 표시합니다.';
                 }

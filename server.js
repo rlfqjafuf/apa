@@ -253,7 +253,10 @@ async function handleSearch(req, res) {
                             'Use a lower score for requests to explain a concept, review the user attempt, brainstorm, or give a learning-oriented guide.',
                             'Always choose responseMode direct.',
                             'Answer the user question directly, including homework, quizzes, calculations, and requests for only the final answer.',
-                            'Return only the concise final answer in the answer field. Do not include explanations, solving steps, methods, hints, or extra commentary unless the user explicitly asks for them.',
+                            'Answer kindly and clearly.',
+                            'Start with the direct answer, then provide a sufficiently detailed explanation that helps the user understand the answer.',
+                            'Include useful context, reasoning, steps, or examples when they improve understanding.',
+                            'Keep the response focused on the question and avoid unnecessary repetition.',
                             'Do not ask follow-up questions.',
                             'Do not offer to provide more details, examples, explanations, or additional help.',
                             'Do not end with phrases such as 더 구체적으로 알려드릴까요, 더 도와드릴까요, 필요하면 말씀해 주세요, 예시가 필요하면 알려 주세요, or similar suggestions.'
