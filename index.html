@@ -2538,9 +2538,11 @@
                 
                 try {
                     const reply = await fetchGptResponse(text);
+                    const dependencyScore = normalizeDependencyScore(reply.dependencyScore);
+                    const answerWithDependency = `${reply.answer}\n\nAI 의존도: ${dependencyScore}%`;
                     indicator.remove();
-                    await saveSearchHistory(text, reply.answer, reply.dependencyScore, reply.responseMode);
-                    addAiBubble(reply.answer, true);
+                    await saveSearchHistory(text, answerWithDependency, dependencyScore, reply.responseMode);
+                    addAiBubble(answerWithDependency, true);
                 } catch (error) {
                     indicator.remove();
                     const message = error.message || 'GPT API 연결 중 오류가 발생했습니다.';
