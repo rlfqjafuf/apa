@@ -580,19 +580,14 @@
         }
 
         function calculateAiDependency(records) {
-            const todayKey = new Date().toDateString();
-            const todaySearches = records.filter(item => new Date(item.timestamp).toDateString() === todayKey).length;
-            const normalizedQuestions = records
-                .map(item => String(item.question || '').trim().toLowerCase().replace(/\s+/g, ' '))
-                .filter(Boolean);
-            const repeatCount = Math.max(0, normalizedQuestions.length - new Set(normalizedQuestions).size);
-            const repeatRate = normalizedQuestions.length ? Math.round((repeatCount / normalizedQuestions.length) * 100) : 0;
+            const dependencyScores = records
+                .map(item => Number(item.dependencyScore))
+                .filter(score => Number.isFinite(score));
 
-            return Math.min(100, Math.round(
-                Math.min(30, records.length * 4) +
-                Math.min(40, todaySearches * 10) +
-                Math.min(30, repeatRate * 0.3)
-            ));
+            return Math.min(
+                100,
+                Math.round(dependencyScores.reduce((sum, value) => sum + value, 0))
+            );
         }
 
         function renderProfile() {
