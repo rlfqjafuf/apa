@@ -1536,7 +1536,7 @@
                     <div class="db-avatar" style="background: var(--accent-gradient);">AI</div>
                     <div class="db-user-details">
                         <h3 id="aiChatTitle">Nexis AI Assistant</h3>
-                        <p>정답 대신 해결 방법과 힌트를 알려주는 비서</p>
+                        <p>질문을 확인하고 답변을 알려주는 비서</p>
                     </div>
                 </div>
                 <button class="btn-back-to-db" id="backToDbBtn" aria-label="대시보드로 돌아가기"><span>대시보드</span></button>
@@ -1544,8 +1544,6 @@
             <div class="chat-container">
                 <div class="chat-messages" id="chatMessages"></div>
                 <div class="chat-suggestions">
-                    <button class="suggestion-pill" data-prompt="내 계정 정보 조회" aria-label="내 계정 정보 조회"><span>내 계정 정보 조회</span></button>
-                    <button class="suggestion-pill" data-prompt="비밀번호 보안 가이드" aria-label="비밀번호 보안 가이드"><span>비밀번호 보안 가이드</span></button>
                     <button class="suggestion-pill" data-prompt="Nexis OS 기능 소개" aria-label="Nexis OS 기능 소개"><span>Nexis OS 기능 소개</span></button>
                 </div>
                 <div class="chat-input-container">
@@ -1662,12 +1660,12 @@
 
             // Mock OAuth
             window.handleSocialMock = function(provider) {
-                showToast(`${provider} 媛꾪렪 濡쒓렇???곌껐???섎┰?섍퀬 ?덉뒿?덈떎.`, 'info');
+                showToast(`${provider} 간편 로그인 연결을 확인하고 있습니다.`, 'info');
                 setTimeout(() => {
-                    showToast(`${provider} ?몄쬆 ?쒕쾭 ?듭떊 ?꾨즺. 媛??濡쒓렇?몄쓣 ?꾨즺?덉뒿?덈떎.`, 'success');
+                    showToast(`${provider} 인증 서버 통신 완료. 간편 로그인을 완료했습니다.`, 'success');
                     
                     const mockEmail = `oauth.${provider.toLowerCase()}@example.com`;
-                    const mockName = `${provider} ?좎?`;
+                    const mockName = `${provider} 사용자`;
                     
                     // Register user if they don't exist
                     let users = JSON.parse(localStorage.getItem('nexis_users') || '[]');
@@ -1680,7 +1678,7 @@
                             name: mockName,
                             password: 'OAUTH_MOCK_PASSWORD',
                             createdAt: now.toLocaleDateString(),
-                            bio: `${provider} 怨꾩젙?쇰줈 濡쒓렇?명븳 ?곹깭?낅땲??`
+                            bio: `${provider} 계정으로 로그인한 상태입니다.`
                         };
                         users.push(existingUser);
                         localStorage.setItem('nexis_users', JSON.stringify(users));
@@ -1701,18 +1699,18 @@
 
                 const email = document.getElementById('loginEmail').value.trim();
                 if (!email) {
-                    showToast('鍮꾨?踰덊샇 ?ъ꽕??硫붿씪??諛쏆쓣 ?대찓?쇱쓣 癒쇱? ?낅젰??二쇱꽭??', 'info');
+                    showToast('비밀번호 재설정 메일을 받을 이메일을 먼저 입력해 주세요.', 'info');
                     return;
                 }
 
                 try {
                     if (!firebaseClient) await setupFirebaseClient();
                     await firebaseClient.sendPasswordReset(email);
-                    showToast('鍮꾨?踰덊샇 ?ъ꽕??硫붿씪??蹂대깉?듬땲??', 'success');
+                    showToast('비밀번호 재설정 메일을 보냈습니다.', 'success');
                 } catch (error) {
                     const message = error.code === 'auth/user-not-found'
-                        ? '媛?낅맂 怨꾩젙??李얠쓣 ???놁뒿?덈떎.'
-                        : error.message || '鍮꾨?踰덊샇 ?ъ꽕??硫붿씪 諛쒖넚 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.';
+                        ? '가입된 계정을 찾을 수 없습니다.'
+                        : error.message || '비밀번호 재설정 메일 발송 중 오류가 발생했습니다.';
                     showToast(message, 'error');
                 }
             }, true);
@@ -1720,7 +1718,7 @@
             // Forgot password mock
             forgotPassLink.addEventListener('click', (e) => {
                 e.preventDefault();
-                showToast('鍮꾨?踰덊샇 珥덇린??留곹겕媛 ?깅줉???대찓?쇰줈 ?꾩넚?섏뿀?듬땲?? (媛??硫붿씪)', 'info');
+                showToast('비밀번호 초기화 링크가 등록된 이메일로 전송되었습니다. (가상 메일)', 'info');
             });
 
             // --- Toggle Slider Navigation ---
@@ -1841,7 +1839,7 @@
                 try {
                     if (!firebaseClient) await setupFirebaseClient();
                     const targetUser = await firebaseClient.loginUser({ email, password });
-                    showToast(`${targetUser.name}?? ?섏쁺?⑸땲??`, 'success');
+                    showToast(`${targetUser.name}님, 환영합니다.`, 'success');
                     createSession(targetUser);
                 } catch (error) {
                     if (isFirebaseAuthSetupError(error)) {
@@ -1868,17 +1866,17 @@
                 
                 // Form validations
                 if (password.length < 8) {
-                    showToast('鍮꾨?踰덊샇??理쒖냼 8???댁긽?댁뼱???⑸땲??', 'error');
+                    showToast('비밀번호는 최소 8자 이상이어야 합니다.', 'error');
                     return;
                 }
                 
                 if (!/\d/.test(password)) {
-                    showToast('鍮꾨?踰덊샇??理쒖냼 1媛??댁긽???レ옄瑜??ы븿?댁빞 ?⑸땲??', 'error');
+                    showToast('비밀번호에는 숫자가 최소 1개 포함되어야 합니다.', 'error');
                     return;
                 }
                 
                 if (password !== confirmPassword) {
-                    showToast('?낅젰??鍮꾨?踰덊샇媛 ?쇱튂?섏? ?딆뒿?덈떎.', 'error');
+                    showToast('입력한 비밀번호가 일치하지 않습니다.', 'error');
                     return;
                 }
                 
@@ -1887,7 +1885,7 @@
                 // Check if user already exists
                 const userExists = users.some(u => u.email.toLowerCase() === email.toLowerCase());
                 if (userExists) {
-                    showToast('?대? ?깅줉???대찓??二쇱냼?낅땲??', 'warning');
+                    showToast('이미 등록된 이메일 주소입니다.', 'warning');
                     return;
                 }
                 
@@ -1904,7 +1902,7 @@
                 users.push(newUser);
                 localStorage.setItem('nexis_users', JSON.stringify(users));
                 
-                showToast('?뚯썝媛?낆씠 ?꾨즺?섏뿀?듬땲?? 濡쒓렇?명빐 二쇱꽭??', 'success');
+                showToast('회원가입이 완료되었습니다. 로그인해 주세요.', 'success');
                 signUpForm.reset();
                 passwordRules.style.display = 'none';
                 
@@ -1923,11 +1921,11 @@
                 const targetUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
                 
                 if (!targetUser || targetUser.password !== password) {
-                    showToast('?대찓???뱀? 鍮꾨?踰덊샇媛 ?쇱튂?섏? ?딆뒿?덈떎.', 'error');
+                    showToast('이메일 또는 비밀번호가 일치하지 않습니다.', 'error');
                     return;
                 }
                 
-                showToast(`${targetUser.name}?? ?섏쁺?⑸땲??`, 'success');
+                showToast(`${targetUser.name}님, 환영합니다.`, 'success');
                 
                 // Handle Session
                 createSession(targetUser);
@@ -2004,7 +2002,7 @@
 
                 // Reset AI Chat to initial greeting dynamically
                 chatMessages.innerHTML = '';
-                addAiBubble('안녕하세요, ' + user.name + '님. Nexis AI Assistant입니다. 궁금한 내용을 입력하면 정답 대신 해결 방법과 힌트를 알려드릴게요.', false);
+                addAiBubble('안녕하세요, ' + user.name + '님. Nexis AI Assistant입니다. 궁금한 내용을 입력하면 질문을 확인하고 답변을 알려드릴게요.', false);
 
                 // Reset screens displays
                 aiChatWrapper.style.display = 'none';
@@ -2188,7 +2186,7 @@
 
                 const sessionObj = JSON.parse(sessionData);
                 if (!sessionObj.uid) {
-                    showToast('Firebase 怨꾩젙 ?몄뀡??李얠쓣 ???놁뒿?덈떎. ?ㅼ떆 濡쒓렇?명빐 二쇱꽭??', 'error');
+                    showToast('Firebase 계정 세션을 찾을 수 없습니다. 다시 로그인해 주세요.', 'error');
                     return;
                 }
 
@@ -2211,9 +2209,9 @@
                     dbUserAvatar.textContent = updatedProfile.name.charAt(0);
 
                     logActivity(`?꾨줈???낅뜲?댄듃: ${updatedProfile.name}`);
-                    showToast('?꾨줈???뺣낫媛 ??λ릺?덉뒿?덈떎.', 'success');
+                    showToast('프로필 정보가 저장되었습니다.', 'success');
                 } catch (error) {
-                    showToast(error.message || '?꾨줈?????以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.', 'error');
+                    showToast(error.message || '프로필 저장 중 오류가 발생했습니다.', 'error');
                 }
             }, true);
 
@@ -2250,7 +2248,7 @@
                     dbUserAvatar.textContent = updatedName.charAt(0);
                     
                     logActivity(`?꾨줈???뺣낫 ?낅뜲?댄듃: ${updatedName}`);
-                    showToast('?꾨줈???뺣낫媛 ??λ릺?덉뒿?덈떎.', 'success');
+                    showToast('프로필 정보가 저장되었습니다.', 'success');
                 }
             });
 
@@ -2282,7 +2280,7 @@
                 sessionStorage.removeItem('nexis_session');
                 localStorage.removeItem('nexis_session');
                 
-                showToast('濡쒓렇?꾩썐?섏뿀?듬땲?? ?덉쟾?섍쾶 ?몄뀡??醫낅즺?덉뒿?덈떎.', 'info');
+                showToast('로그아웃했습니다. 안전하게 세션을 종료했습니다.', 'info');
                 
                 // Hide dashboard and chat views
                 dashboardWrapper.className = 'dashboard-wrapper';
@@ -2311,7 +2309,7 @@
                     
                     if (matchedUser) {
                         renderDashboard(matchedUser);
-                        showToast(`${matchedUser.name}?? ?먮룞 濡쒓렇?몃릺?덉뒿?덈떎.`, 'success');
+                        showToast(`${matchedUser.name}님, 자동 로그인되었습니다.`, 'success');
                     } else {
                         // Cleanup broken references
                         sessionStorage.removeItem('nexis_session');
