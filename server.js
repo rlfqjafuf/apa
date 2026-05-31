@@ -256,6 +256,7 @@ async function handleSearch(req, res) {
                             'Answer kindly and clearly.',
                             'Start with the direct answer, then provide a sufficiently detailed explanation that helps the user understand the answer.',
                             'Include useful context, reasoning, steps, or examples when they improve understanding.',
+                            'For explanation questions, usually provide at least 3 to 5 informative sentences covering the core idea, how it works, and why it matters.',
                             'Keep the response focused on the question and avoid unnecessary repetition.',
                             'Do not ask follow-up questions.',
                             'Do not offer to provide more details, examples, explanations, or additional help.',
