@@ -566,6 +566,8 @@
                 .map(item => ({
                     question: item.question || item.query || '검색어 없음',
                     answer: item.answer || 'AI 답변 없음',
+                    dependencyScore: Number(item.dependencyScore) || 0,
+                    responseMode: item.responseMode === 'hint' ? 'hint' : 'direct',
                     timestamp: item.timestamp || new Date().toISOString()
                 }));
 

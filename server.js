@@ -178,7 +178,7 @@ function serveStatic(requestPath, req, res) {
     });
 }
 
-// Calls OpenAI Responses API and asks it to provide hints instead of final answers.
+// Calls OpenAI Responses API and returns an answer plus a question-level dependency score.
 async function handleSearch(req, res) {
     const openAiApiKey = await getOpenAiApiKey();
 
@@ -224,16 +224,39 @@ async function handleSearch(req, res) {
             signal: controller.signal,
             body: JSON.stringify({
                 model,
+                text: {
+                    format: {
+                        type: 'json_schema',
+                        name: 'nexis_ai_answer',
+                        strict: true,
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                answer: { type: 'string' },
+                                dependencyScore: { type: 'integer', minimum: 0, maximum: 100 },
+                                responseMode: { type: 'string', enum: ['direct', 'hint'] },
+                                dependencyReason: { type: 'string' }
+                            },
+                            required: ['answer', 'dependencyScore', 'responseMode', 'dependencyReason'],
+                            additionalProperties: false
+                        }
+                    }
+                },
                 input: [
                     {
                         role: 'developer',
                         content: [
                             'You are Nexis AI Assistant.',
                             'Respond in Korean.',
-                            'Do not give the final answer directly.',
-                            'Instead, help the user discover the answer by giving a short method, key concepts to check, and 2-4 actionable hints.',
-                            'If the user asks for code, homework, quiz answers, calculations, or factual lookup, explain how to solve or verify it step by step without spoiling the final result.',
-                            'Keep the tone encouraging and concise.'
+                            'Analyze how strongly the question asks AI to replace the user thinking, and assign dependencyScore from 0 to 100.',
+                            'Use a higher score for requests to complete homework, solve a quiz, make an important decision without context, or produce a finished result with no user effort.',
+                            'Use a lower score for requests to explain a concept, review the user attempt, brainstorm, or give a learning-oriented guide.',
+                            'You MUST choose responseMode hint when giving the finished answer would prevent learning or replace an important user judgment.',
+                            'If dependencyScore is 70 or higher, responseMode MUST be hint and answer MUST NOT reveal the final answer.',
+                            'For homework, quizzes, calculations, and requests for only the final answer, give the solving method and the next step instead of the completed result.',
+                            'Choose responseMode direct for ordinary factual questions, explanations, summaries, and safe practical questions where a direct answer is useful.',
+                            'For direct mode, answer the question clearly. For hint mode, provide a method and actionable hints without revealing the final result.',
+                            'Keep the answer concise and useful.'
                         ].join(' ')
                     },
                     {
@@ -260,11 +283,8 @@ async function handleSearch(req, res) {
             return;
         }
 
-        sendJson(req, res, 200, {
-            answer: extractResponseText(data),
-            mode: 'hint',
-            model
-        });
+        const result = extractStructuredAnswer(data);
+        sendJson(req, res, 200, { ...result, model });
     } catch (error) {
         if (error.name === 'AbortError') {
             sendJson(req, res, 504, { error: 'AI 응답 시간이 초과되었습니다. 잠시 후 다시 시도해 주세요.' });
@@ -275,6 +295,27 @@ async function handleSearch(req, res) {
         sendJson(req, res, 502, { error: 'AI 서버와 통신하지 못했습니다.' });
     } finally {
         clearTimeout(timeout);
+    }
+}
+
+function extractStructuredAnswer(data) {
+    const raw = extractResponseText(data);
+
+    try {
+        const parsed = JSON.parse(raw);
+        return {
+            answer: String(parsed.answer || '답변을 생성하지 못했습니다.'),
+            dependencyScore: Math.max(0, Math.min(100, Number(parsed.dependencyScore) || 0)),
+            responseMode: parsed.responseMode === 'hint' ? 'hint' : 'direct',
+            dependencyReason: String(parsed.dependencyReason || '')
+        };
+    } catch {
+        return {
+            answer: raw,
+            dependencyScore: 0,
+            responseMode: 'direct',
+            dependencyReason: ''
+        };
     }
 }
 

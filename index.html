@@ -2085,11 +2085,13 @@
             }
 
             // Saves a local browser copy of the search record.
-            async function saveSearchHistory(question, answer) {
+            async function saveSearchHistory(question, answer, dependencyScore = 0, responseMode = 'direct') {
                 const now = new Date();
                 const record = {
                     question,
                     answer,
+                    dependencyScore,
+                    responseMode,
                     timestamp: now.toISOString()
                 };
                 const history = JSON.parse(localStorage.getItem('nexis_search_history') || '[]');
@@ -2106,6 +2108,8 @@
                     .map(item => ({
                         question: item.question || item.query,
                         answer: item.answer,
+                        dependencyScore: Number(item.dependencyScore) || 0,
+                        responseMode: item.responseMode === 'hint' ? 'hint' : 'direct',
                         timestamp: item.timestamp || new Date().toISOString()
                     }));
                 localStorage.setItem('nexis_search_history', JSON.stringify(sanitizedHistory.slice(0, 100)));
@@ -2122,10 +2126,12 @@
                 const repeatedCount = Math.max(0, normalizedQuestions.length - uniqueCount);
                 const repeatRate = normalizedQuestions.length ? Math.round((repeatedCount / normalizedQuestions.length) * 100) : 0;
 
-                const volumeScore = Math.min(30, records.length * 4);
-                const todayScore = Math.min(40, todayCount * 10);
-                const repeatScore = Math.min(30, repeatRate * 0.3);
-                const score = Math.min(100, Math.round(volumeScore + todayScore + repeatScore));
+                const dependencyScores = records
+                    .map(item => Number(item.dependencyScore))
+                    .filter(score => Number.isFinite(score));
+                const score = dependencyScores.length
+                    ? Math.round(dependencyScores.reduce((sum, value) => sum + value, 0) / dependencyScores.length)
+                    : 0;
 
                 let level = '낮음';
                 let levelClass = '';
@@ -2489,7 +2495,11 @@
                     throw new Error(data.error || 'GPT API 힌트를 가져오지 못했습니다.');
                 }
 
-                return data.answer || '힌트를 생성하지 못했습니다.';
+                return {
+                    answer: data.answer || '답변을 생성하지 못했습니다.',
+                    dependencyScore: Number(data.dependencyScore) || 0,
+                    responseMode: data.responseMode === 'hint' ? 'hint' : 'direct'
+                };
             }
 
             async function fetchGptResponse(query) {
@@ -2524,8 +2534,8 @@
                 try {
                     const reply = await fetchGptResponse(text);
                     indicator.remove();
-                    await saveSearchHistory(text, reply);
-                    addAiBubble(reply, true);
+                    await saveSearchHistory(text, reply.answer, reply.dependencyScore, reply.responseMode);
+                    addAiBubble(reply.answer, true);
                 } catch (error) {
                     indicator.remove();
                     const message = error.message || 'GPT API 연결 중 오류가 발생했습니다.';
