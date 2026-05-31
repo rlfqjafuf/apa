@@ -505,6 +505,8 @@
                 <select class="control" id="sortSelect">
                     <option value="newest">최신순</option>
                     <option value="oldest">오래된순</option>
+                    <option value="dependency-desc">AI 의존도 높은순</option>
+                    <option value="dependency-asc">AI 의존도 낮은순</option>
                 </select>
             </label>
         </section>
@@ -621,6 +623,12 @@
             rows.sort((a, b) => {
                 const left = new Date(a.timestamp).getTime();
                 const right = new Date(b.timestamp).getTime();
+                if (sort === 'dependency-desc') {
+                    return b.dependencyScore - a.dependencyScore || right - left;
+                }
+                if (sort === 'dependency-asc') {
+                    return a.dependencyScore - b.dependencyScore || right - left;
+                }
                 return sort === 'oldest' ? left - right : right - left;
             });
 
